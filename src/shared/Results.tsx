@@ -1,0 +1,9 @@
+import { motion } from 'motion/react'
+import { heartsForPercent } from './rewards'
+
+export function Results({ correct, total, failed = false, showModes = true, onAgain, onModes, onHome }: { correct: number; total: number; failed?: boolean; showModes?: boolean; onAgain: () => void; onModes: () => void; onHome: () => void }) {
+  const percent = Math.round(correct / total * 100)
+  const hearts = heartsForPercent(percent)
+  const title = failed ? 'Попробуем ещё раз!' : percent === 100 ? 'Безупречно!' : percent >= 75 ? 'Отличная работа!' : 'Хорошее начало!'
+  return <main className="results-page"><motion.section className="results-card" initial={{ scale: .7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}><span className="eyebrow">{failed ? 'Отступать больше некуда' : 'Сессия завершена'}</span><h1>{title}</h1><div className="result-ring" style={{ '--score': `${percent * 3.6}deg` } as React.CSSProperties}><strong>{percent}%</strong><span>{correct} из {total}</span></div><div className="hearts" aria-label={`${hearts} сердца`}>{[1,2,3].map(n => <motion.span key={n} animate={n <= hearts ? { scale: [0, 1.25, 1] } : { opacity: .18 }} transition={{ delay: n * .18 }}>♥</motion.span>)}</div><p>{failed ? 'Ничего страшного — попробуй снова и помоги лягушке добраться до короны!' : hearts === 3 ? 'Три сердца летят в твой профиль!' : `Ты получаешь ${hearts} ${hearts === 1 ? 'сердце' : 'сердца'}.`}</p><div className="button-row"><button className="primary-button" onClick={onAgain}>Сыграть ещё</button>{showModes && <button className="secondary-button" onClick={onModes}>Другой режим</button>}<button className="text-button" onClick={onHome}>На главную</button></div></motion.section></main>
+}
