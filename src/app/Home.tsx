@@ -1,10 +1,10 @@
 import { motion } from 'motion/react'
-import { CharacterLogo } from '../shared/CharacterLogo'
 import type { GameId, StudentProfile } from '../shared/types'
 import { games } from './gameInfo'
 import { titleForLevel } from '../shared/rewards'
 import frogProgressFront from '../games/frog/assets/frog-progress-front.png'
 import squirrelCelebrate from '../games/squirrel/assets/squirrel-celebrate-v2.webp'
+import beaverCardCover from '../games/beaver/assets/beaver-card-cover.webp'
 
 export function Home({ profile, onProfile, onPlay, onHelp, onAudio }: {
   profile: StudentProfile
@@ -45,7 +45,7 @@ export function Home({ profile, onProfile, onPlay, onHelp, onAudio }: {
           ? <img className="character-logo frog-home-logo" src={frogProgressFront} alt="Весёлая лягушка"/>
           : game.id === 'squirrel'
             ? <img className="character-logo squirrel-home-logo" src={squirrelCelebrate} alt="Радостная рыжая белочка"/>
-            : <CharacterLogo game={game.id}/>}
+            : <img className="character-logo beaver-home-cover" src={beaverCardCover} alt="Бобр строит мост из брёвен"/>}
         <span className="skill-tag">{game.subtitle}</span>
         <h2>{game.title}</h2>
         <p>{game.description}</p>

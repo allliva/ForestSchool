@@ -16,10 +16,11 @@ import { BeaverGame } from '../games/beaver/components/BeaverGame'
 import { AudioSettings } from './AudioSettings'
 import { musicUrl as frogMusicUrl } from '../games/frog/audio/theme'
 import { musicUrl as squirrelMusicUrl } from '../games/squirrel/audio/theme'
+import { musicUrl as beaverMusicUrl } from '../games/beaver/audio/theme'
 import { preloadVisualAssets } from '../shared/preloadAssets'
 
 type Screen = 'home' | 'profile' | 'modes' | 'game' | 'results'
-type ResultState = { correct: number; total: number; failed: boolean; mistakes: number; level: number; levelChange: number; rewardName?: string; rewardIcon?: string; rewardLost?: boolean }
+type ResultState = { correct: number; total: number; failed: boolean; mistakes: number; level: number; levelChange: number; rewardName?: string; rewardIcon?: string; rewardLost?: boolean; outcomeTitle?: string; outcomeText?: string; remainingHammers?: number; firstTryRounds?: number }
 
 export function App() {
   const [profile, setProfile] = useState<StudentProfile | null>(() => loadProfile())
@@ -33,7 +34,7 @@ export function App() {
   }, [])
   useEffect(() => { if (profile) { saveProfile(profile); audio.configure(profile.audio) } }, [profile])
   useEffect(() => {
-    const trackUrl = screen === 'game' ? gameId === 'frog' ? frogMusicUrl : gameId === 'squirrel' ? squirrelMusicUrl : undefined : undefined
+    const trackUrl = screen === 'game' ? gameId === 'frog' ? frogMusicUrl : gameId === 'squirrel' ? squirrelMusicUrl : beaverMusicUrl : undefined
     audio.startMusic(screen === 'game' ? gameId : 'home', trackUrl)
     return () => audio.stopMusic()
   }, [gameId, profile?.audio.enabled, profile?.audio.music, screen])
@@ -47,7 +48,7 @@ export function App() {
     const unlockedReward = nextProfile.appearanceTier > profile.appearanceTier ? explorerRewards[nextProfile.appearanceTier - 1] : undefined
     const lostReward = nextProfile.appearanceTier < profile.appearanceTier ? explorerRewards[profile.appearanceTier - 1] : undefined
     setProfile(nextProfile)
-    setResult({ correct, total, failed, mistakes, level: nextProfile.level, levelChange, rewardName: unlockedReward?.item ?? lostReward?.item, rewardIcon: unlockedReward?.icon, rewardLost: Boolean(lostReward) })
+    setResult({ correct, total, failed, mistakes, level: nextProfile.level, levelChange, rewardName: unlockedReward?.item ?? lostReward?.item, rewardIcon: unlockedReward?.icon, rewardLost: Boolean(lostReward), outcomeTitle: gameId === 'beaver' ? failed ? 'У бобра закончились молоточки!' : 'Бобр добрался домой!' : undefined, outcomeText: gameId === 'beaver' ? failed ? 'Попробуем пройти путь ещё раз?' : 'Все 10 мостов построены!' : undefined, remainingHammers: gameId === 'beaver' ? Math.max(0, 3 - mistakes) : undefined, firstTryRounds: gameId === 'beaver' ? correct : undefined })
     setScreen('results'); audio.play('finish')
   }, [game.title, gameId, mode.title, modeId, profile])
   const showHelp = (id?: GameId) => { if (id) setGameId(id); setModal('help') }
@@ -55,11 +56,11 @@ export function App() {
   if (!profile) return <Welcome onCreate={name => { const next = createProfile(name); setProfile(next); audio.play('correct') }}/>
   const gameProps = { modeId, onFinish: finish, onExit: () => setScreen(game.modes.length === 1 ? 'home' : 'modes'), onHelp: () => showHelp(), onAudio: () => setModal('audio') }
   return <>
-    {screen === 'home' && <Home profile={profile} onProfile={() => setScreen('profile')} onPlay={chooseGame} onHelp={showHelp} onAudio={() => setModal('audio')}/>} 
+    {screen === 'home' && <Home profile={profile} onProfile={() => setScreen('profile')} onPlay={chooseGame} onHelp={showHelp} onAudio={() => setModal('audio')}/>}
     {screen === 'profile' && <Profile profile={profile} onBack={() => setScreen('home')} onRename={() => setModal('rename')} onReset={() => { if (confirm('Удалить имя, историю, уровни и предметы?')) { clearProfile(); setProfile(null); setScreen('home') } }}/>}
-    {screen === 'modes' && <ModeSelect game={game} onBack={() => setScreen('home')} onSelect={id => { setModeId(id); setScreen('game'); audio.play('tap') }}/>} 
-    {screen === 'game' && (gameId === 'frog' ? <FrogGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : gameId === 'squirrel' ? <SquirrelGame {...gameProps} level={profile.level} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : <BeaverGame {...gameProps}/>)}
-    {screen === 'results' && <Results {...result} showModes={game.modes.length > 1} onAgain={() => setScreen('game')} onModes={() => setScreen(game.modes.length === 1 ? 'game' : 'modes')} onHome={() => setScreen('home')}/>} 
+    {screen === 'modes' && <ModeSelect game={game} onBack={() => setScreen('home')} onSelect={id => { setModeId(id); setScreen('game'); audio.play('tap') }}/>}
+    {screen === 'game' && (gameId === 'frog' ? <FrogGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : gameId === 'squirrel' ? <SquirrelGame {...gameProps} level={profile.level} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : <BeaverGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/>)}
+    {screen === 'results' && <Results {...result} showModes={game.modes.length > 1} onAgain={() => setScreen('game')} onModes={() => setScreen(game.modes.length === 1 ? 'game' : 'modes')} onHome={() => setScreen('home')}/>}
     {modal === 'help' && <Modal title={`Как играть: ${game.title}`} onClose={() => setModal(null)}><ol className="instruction-list">{game.instruction.map(step => <li key={step}>{step}</li>)}</ol><button className="primary-button wide" onClick={() => setModal(null)}>Всё понятно!</button></Modal>}
     {modal === 'audio' && <Modal title="Звук" onClose={() => setModal(null)}><AudioSettings value={profile.audio} onChange={value => { setProfile({ ...profile, audio: value }); audio.configure(value); audio.play('tap') }}/></Modal>}
     {modal === 'rename' && <Modal title="Изменить имя" onClose={() => setModal(null)}><form className="rename-form" onSubmit={e => { e.preventDefault(); const data = new FormData(e.currentTarget); const name = String(data.get('name') ?? '').trim(); if (name) { setProfile({ ...profile, name: name.slice(0,24) }); setModal(null) } }}><input name="name" defaultValue={profile.name} maxLength={24} autoFocus/><button className="primary-button wide">Сохранить</button></form></Modal>}

@@ -175,6 +175,6 @@ test('ошибка на пустом запасе завершает попыт�
 
 test('бобёр открывает сборку круглого моста', async ({ page }) => {
   await page.locator('.beaver-card').getByRole('button', { name: /Играть/ }).click()
-  await expect(page.getByText('Собери правильное предложение')).toBeVisible()
-  expect(await page.locator('.round-log').count()).toBeGreaterThanOrEqual(2)
+  await expect(page.getByRole('group', { name: 'Доступные брёвна' })).toBeVisible()
+  expect(await page.locator('.word-log').count()).toBeGreaterThanOrEqual(2)
 })

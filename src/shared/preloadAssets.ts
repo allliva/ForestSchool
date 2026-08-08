@@ -17,12 +17,12 @@ import squirrelCatch from '../games/squirrel/assets/squirrel-catch-v2.webp'
 import squirrelThrow from '../games/squirrel/assets/squirrel-throw-v2.webp'
 import squirrelWrong from '../games/squirrel/assets/squirrel-wrong-v2.webp'
 import squirrelCelebrate from '../games/squirrel/assets/squirrel-celebrate-v2.webp'
-import chest1Closed from '../games/squirrel/assets/chest-1-closed-v2.webp'
-import chest1Open from '../games/squirrel/assets/chest-1-open-v2.webp'
-import chest2Closed from '../games/squirrel/assets/chest-2-closed-v2.webp'
-import chest2Open from '../games/squirrel/assets/chest-2-open-v2.webp'
-import chest3Closed from '../games/squirrel/assets/chest-3-closed-v2.webp'
-import chest3Open from '../games/squirrel/assets/chest-3-open-v2.webp'
+import chest1Closed from '../games/squirrel/assets/chest-1-closed-v3.webp'
+import chest1Open from '../games/squirrel/assets/chest-1-open-v3.webp'
+import chest2Closed from '../games/squirrel/assets/chest-2-closed-v3.webp'
+import chest2Open from '../games/squirrel/assets/chest-2-open-v3.webp'
+import chest3Closed from '../games/squirrel/assets/chest-3-closed-v3.webp'
+import chest3Open from '../games/squirrel/assets/chest-3-open-v3.webp'
 import oakParachute from '../games/squirrel/assets/oak-leaf-parachute-v3.webp'
 import squirrelAcorn from '../games/squirrel/assets/acorn-v4.webp'
 import progressEmpty from '../games/squirrel/assets/progress-acorn-empty-v3.webp'
@@ -30,6 +30,19 @@ import progressFilled from '../games/squirrel/assets/progress-acorn-filled-v3.we
 import progressPantry from '../games/squirrel/assets/progress-pantry-v3.webp'
 import progressBadge from '../games/squirrel/assets/progress-badge-v3.webp'
 import beaverBackground from '../games/beaver/assets/beaver-river.webp'
+import beaverRiverBackground from '../games/beaver/assets/river-background.webp'
+import beaverHomeBackground from '../games/beaver/assets/home-background.webp'
+import beaverCardCover from '../games/beaver/assets/beaver-card-cover.webp'
+import beaverBridge from '../games/beaver/assets/bridge-outline.webp'
+import beaverWordLog from '../games/beaver/assets/word-log.webp'
+import beaverLogEnd from '../games/beaver/assets/log-end.webp'
+import beaverHammer from '../games/beaver/assets/hammer.webp'
+import beaverIdle from '../games/beaver/assets/beaver-idle.webp'
+import beaverWalk from '../games/beaver/assets/beaver-walk.webp'
+import beaverFall from '../games/beaver/assets/beaver-fall.webp'
+import beaverWet from '../games/beaver/assets/beaver-wet.webp'
+import beaverFacepalm from '../games/beaver/assets/beaver-facepalm.webp'
+import beaverWin from '../games/beaver/assets/beaver-win.webp'
 
 const visualAssets = [
   frogBackground, frogProgress, frogCrown, frogFly, frogWordLily,
@@ -37,7 +50,7 @@ const visualAssets = [
   squirrelBackground, squirrelIdle, squirrelRun1, squirrelRun2, squirrelCatch, squirrelThrow, squirrelWrong, squirrelCelebrate,
   chest1Closed, chest1Open, chest2Closed, chest2Open, chest3Closed, chest3Open,
   oakParachute, squirrelAcorn, progressEmpty, progressFilled, progressPantry, progressBadge,
-  beaverBackground,
+  beaverBackground, beaverRiverBackground, beaverHomeBackground, beaverCardCover, beaverBridge, beaverWordLog, beaverLogEnd, beaverHammer, beaverIdle, beaverWalk, beaverFall, beaverWet, beaverFacepalm, beaverWin,
 ]
 
 function preloadImage(source: string) {

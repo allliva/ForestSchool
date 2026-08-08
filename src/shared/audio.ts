@@ -1,6 +1,6 @@
 import type { AudioSettings } from './types'
 
-export type SoundName = 'tap' | 'tongue' | 'chest' | 'catch' | 'correct' | 'wrong' | 'reward' | 'finish'
+export type SoundName = 'tap' | 'tongue' | 'chest' | 'catch' | 'correct' | 'wrong' | 'reward' | 'finish' | 'wood' | 'place' | 'crack' | 'splash' | 'hammerLost'
 
 class ForestAudio {
   private ctx?: AudioContext
@@ -23,6 +23,11 @@ class ForestAudio {
       wrong: [[210, 160], 'triangle', .14],
       reward: [[660, 880, 1100], 'sine', .18],
       finish: [[440, 660, 880, 1040], 'triangle', .2],
+      wood: [[270, 220], 'triangle', .06],
+      place: [[190, 145], 'sine', .08],
+      crack: [[150, 115, 82], 'sawtooth', .09],
+      splash: [[170, 260, 135], 'sine', .07],
+      hammerLost: [[320, 230, 160], 'triangle', .08],
     }
     const [notes, type, duration] = map[name]
     notes.forEach((frequency, index) => {
