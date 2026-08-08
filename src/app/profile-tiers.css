@@ -1,23 +1,15 @@
-/* Ступени оформления открываются с ростом уровня исследователя. */
-.profile-showcase.tier-3 h1{-webkit-text-stroke:1px #3f7555;text-shadow:0 2px #fff}
-.profile-showcase.tier-4{box-shadow:0 0 45px #ffd96e,0 30px 70px #173f3430}
-.profile-showcase.tier-5:before{content:'🍃  🍃';position:absolute;top:18px;left:0;right:0;font-size:2rem}
-.profile-showcase.tier-6:before{content:'🌰  🍂  🌰';position:absolute;top:18px;left:0;right:0;font-size:1.7rem}
-.profile-showcase.tier-7 .magic-particles{animation:profile-twinkle 1.5s ease-in-out infinite;color:#ffd33f}
-.profile-showcase.tier-8:after{content:'ЛЕСНОЙ ЗНАТОК';position:absolute;right:-47px;top:36px;width:180px;padding:7px;background:#6dae50;color:white;transform:rotate(42deg);font-size:.7rem;font-weight:900}
-.profile-showcase.tier-9{background:linear-gradient(115deg,#fff9df 20%,#fff 42%,#dff4c5 60%);background-size:220% 100%;animation:profile-shimmer 4s linear infinite}
-.profile-showcase.tier-10{border-color:#36a86f;background:linear-gradient(150deg,#efffd5,#bfeacb)}
-.profile-showcase.tier-11:before{content:'🌿  🌿  🌿';position:absolute;top:14px;left:0;right:0;font-size:1.7rem}
-.profile-showcase.tier-12 .magic-particles{color:#f4af23;text-shadow:20px 35px #f4af23,-28px 60px #fff,50px 95px #f4af23}
-.profile-showcase.tier-13 h1{color:#fff;text-shadow:0 2px 0 #789b94,2px 0 #789b94,-2px 0 #789b94,0 -2px #789b94}
-.profile-showcase.tier-14:before{content:'🍄  ✦  🍄';position:absolute;bottom:18px;left:0;right:0;font-size:1.8rem}
-.profile-showcase.tier-15{background:linear-gradient(145deg,#d8ffcf,#b8e7ff,#efd0ff,#fff0ba);background-size:300% 300%;animation:profile-aurora 6s ease infinite}
-.profile-showcase.tier-16{border-color:#8dd9df;box-shadow:0 0 0 5px #d8ffff,0 0 45px #70d9e8,0 30px 70px #173f3430}
-.profile-showcase.tier-17 .big-avatar{background:radial-gradient(circle,#dfffa8,#4ca56c);box-shadow:0 0 35px #90ef7f}
-.profile-showcase.tier-18:before{content:'♕';position:absolute;top:0;left:50%;transform:translateX(-50%);color:#e8aa25;font-size:4.3rem;text-shadow:0 4px #fff0ad}
-.profile-showcase.tier-19{border-color:transparent;background:linear-gradient(#fffbe7,#e9f8d8) padding-box,linear-gradient(135deg,#ff758b,#ffd35b,#64d8a4,#72b9ff,#d994f5) border-box;box-shadow:0 0 50px #d9a4ff}
-.profile-showcase.tier-20{border-color:#ffe56c;background:radial-gradient(circle at 50% 25%,#fff,#e9ffd1 45%,#b7eab7);box-shadow:0 0 0 5px #fff8bd,0 0 70px #ffe85d,0 30px 80px #173f3440}
-.profile-showcase.tier-20:after{content:'ХРАНИТЕЛЬ ЛЕСА';position:absolute;bottom:16px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:8px 15px;border-radius:20px;background:#173f34;color:#ffe867;font-size:.75rem;font-weight:900;letter-spacing:.12em}
-@keyframes profile-twinkle{50%{opacity:.3;transform:scale(1.2)}}
-@keyframes profile-shimmer{to{background-position:-220% 0}}
-@keyframes profile-aurora{50%{background-position:100% 50%}}
+/* Десять ступеней меняют акцент грамоты, не нарушая общий стиль профиля. */
+.profile-showcase.tier-0{--tier-accent:#78933c}
+.profile-showcase.tier-1{--tier-accent:#91a8a0}
+.profile-showcase.tier-2{--tier-accent:#c7922d}
+.profile-showcase.tier-3{--tier-accent:#4f9861}
+.profile-showcase.tier-4{--tier-accent:#d67933}
+.profile-showcase.tier-5{--tier-accent:#4292a0}
+.profile-showcase.tier-6{--tier-accent:#8067a8}
+.profile-showcase.tier-7{--tier-accent:#ba724d}
+.profile-showcase.tier-8{--tier-accent:#4d9c78}
+.profile-showcase.tier-9{--tier-accent:#6c7fc0}
+.profile-showcase.tier-10{--tier-accent:#d4a72f}
+.profile-showcase.tier-4 .magic-particles,.profile-showcase.tier-7 .magic-particles,.profile-showcase.tier-10 .magic-particles{animation:profile-twinkle 1.8s ease-in-out infinite}
+.profile-showcase.tier-10 .avatar-medallion{box-shadow:inset 0 0 0 4px #fff0a9,0 13px 19px #3f2b1d5c,0 0 26px #f1c94f}
+@keyframes profile-twinkle{50%{opacity:.25;transform:scale(1.05)}}

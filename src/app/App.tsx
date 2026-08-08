@@ -48,7 +48,7 @@ export function App() {
     const unlockedReward = nextProfile.appearanceTier > profile.appearanceTier ? explorerRewards[nextProfile.appearanceTier - 1] : undefined
     const lostReward = nextProfile.appearanceTier < profile.appearanceTier ? explorerRewards[profile.appearanceTier - 1] : undefined
     setProfile(nextProfile)
-    setResult({ correct, total, failed, mistakes, level: nextProfile.level, levelChange, rewardName: unlockedReward?.item ?? lostReward?.item, rewardIcon: unlockedReward?.icon, rewardLost: Boolean(lostReward), outcomeTitle: gameId === 'beaver' ? failed ? 'У бобра закончились молоточки!' : 'Бобр добрался домой!' : undefined, outcomeText: gameId === 'beaver' ? failed ? 'Попробуем пройти путь ещё раз?' : 'Все 10 мостов построены!' : undefined, remainingHammers: gameId === 'beaver' ? Math.max(0, 3 - mistakes) : undefined, firstTryRounds: gameId === 'beaver' ? correct : undefined })
+    setResult({ correct, total, failed, mistakes, level: nextProfile.level, levelChange, rewardName: unlockedReward?.item ?? lostReward?.item, rewardIcon: unlockedReward?.icon, rewardLost: Boolean(lostReward), outcomeTitle: gameId === 'beaver' ? failed ? 'У бобра закончились молоточки!' : 'Бобр добрался домой!' : undefined, outcomeText: gameId === 'beaver' ? failed ? 'Попробуем пройти путь ещё раз?' : 'Все 10 мостов построены!' : undefined, remainingHammers: gameId === 'beaver' ? Math.max(0, 5 - mistakes) : undefined, firstTryRounds: gameId === 'beaver' ? correct : undefined })
     setScreen('results'); audio.play('finish')
   }, [game.title, gameId, mode.title, modeId, profile])
   const showHelp = (id?: GameId) => { if (id) setGameId(id); setModal('help') }

@@ -1,3 +1,4 @@
+import homeForestBackground from '../app/assets/home-forest-background-v2.webp'
 import frogBackground from '../games/frog/assets/frog-pond-lily.png'
 import frogProgress from '../games/frog/assets/frog-progress-front.png'
 import frogCrown from '../games/frog/assets/frog-crown-3d.png'
@@ -45,6 +46,7 @@ import beaverFacepalm from '../games/beaver/assets/beaver-facepalm.webp'
 import beaverWin from '../games/beaver/assets/beaver-win.webp'
 
 const visualAssets = [
+  homeForestBackground,
   frogBackground, frogProgress, frogCrown, frogFly, frogWordLily,
   frogSprite0, frogSprite1, frogSprite2, frogSprite3, frogSprite4, frogSprite5,
   squirrelBackground, squirrelIdle, squirrelRun1, squirrelRun2, squirrelCatch, squirrelThrow, squirrelWrong, squirrelCelebrate,
