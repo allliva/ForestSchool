@@ -51,6 +51,14 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
   const [look, setLook] = useState({ frame: 0, mirror: false })
 
   useEffect(() => {
+    frogFrames.forEach(source => {
+      const image = new Image()
+      image.src = source
+      void image.decode().catch(() => undefined)
+    })
+  }, [])
+
+  useEffect(() => {
     const area = flyAreaRef.current
     const nodes = flyNodeRefs.current.slice(0, flies.length)
     if (!area || nodes.some(node => !node)) return
@@ -421,7 +429,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
       {resultImpact && <motion.div className={'letter-result-effect ' + (resultImpact.correct ? 'correct' : 'wrong')} style={{ left: resultImpact.x, top: resultImpact.y }} initial={{ scale: .2, opacity: 0, rotate: -25 }} animate={{ scale: [1, 1.45, .8], opacity: [0, 1, 0], rotate: [-25, 12, 0] }} transition={{ duration: .52, ease: 'easeOut' }} aria-hidden="true"><span>{resultImpact.correct ? '✓' : '×'}</span><i/><i/><i/></motion.div>}
       <div className="frog-tracker">
         <div ref={frogRef} className="frog-sprite">
-          <img key={String(look.frame) + '-' + String(look.mirror)} src={frogFrame} className={look.mirror ? 'mirrored' : ''} alt="Лягушка со спины следит за курсором" draggable={false}/>
+          <img src={frogFrame} className={look.mirror ? 'mirrored' : ''} alt="Лягушка со спины следит за курсором" draggable={false}/>
         </div>
       </div>
       <div className="feedback-bubble" aria-live="polite">{progressMessage}</div>
