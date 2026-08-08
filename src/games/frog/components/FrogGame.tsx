@@ -3,8 +3,7 @@ import { motion } from 'motion/react'
 import { GameShell } from '../../../shared/GameShell'
 import { useSession } from '../../../shared/useSession'
 import { audio } from '../../../shared/audio'
-import { sampleUnique } from '../../../shared/storage'
-import { frogTasks, hiddenWord } from '../data/tasks'
+import { FROG_GOAL, FROG_SCORED_TURNS, frogSpeedMultiplier, frogTaskForTurn, hasReachedFrogCrown, hiddenWord, shuffleFrogTasks } from '../data/tasks'
 import frogProgressFront from '../assets/frog-progress-front.png'
 import frogSprite0 from '../assets/frog-sprite-0.png'
 import frogSprite1 from '../assets/frog-sprite-1.png'
@@ -31,9 +30,9 @@ function randomLetters(correct: string, suggestions: string[]) {
 interface TongueShot { startX: number; startY: number; endX: number; endY: number; thickness: number }
 
 export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number, mistakes: number) => void; onFail: (score: number, mistakes: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
-  const tasks = useMemo(() => sampleUnique(frogTasks, 10), [])
-  const session = useSession(tasks.length, onFinish)
-  const task = tasks[session.index]
+  const tasks = useMemo(() => shuffleFrogTasks(), [])
+  const session = useSession(null, onFinish)
+  const task = frogTaskForTurn(tasks, session.index)
   const flies = useMemo(() => randomLetters(task.missing, task.options), [task])
   const stageRef = useRef<HTMLElement>(null)
   const frogRef = useRef<HTMLDivElement>(null)
@@ -43,11 +42,13 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
   const wrongEffectTimerRef = useRef<number | null>(null)
   const messageTimerRef = useRef<number | null>(null)
   const defeatTimerRef = useRef<number | null>(null)
+  const victoryTimerRef = useRef<number | null>(null)
   const touchShotRef = useRef(false)
   const [caught, setCaught] = useState<number | null>(null)
   const [tongue, setTongue] = useState<TongueShot | null>(null)
   const [resultImpact, setResultImpact] = useState<{ x: number; y: number; correct: boolean } | null>(null)
   const [progress, setProgress] = useState(0)
+  const speedProgressRef = useRef(0)
   const [progressMessage, setProgressMessage] = useState('')
   const [look, setLook] = useState({ frame: 0, mirror: false })
 
@@ -64,6 +65,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
       width: element.offsetWidth,
       height: element.offsetHeight,
       vx: 0, vy: 0,
+      speedMultiplier: frogSpeedMultiplier(speedProgressRef.current),
     }))
     const bounds = () => ({ width: area.clientWidth, height: area.clientHeight })
     const layoutSpeedFactor = (size: { width: number; height: number }) => Math.max(.72, Math.min(2.4, size.width / 1050))
@@ -185,7 +187,9 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
             break
           }
         }
-        const speed = (34 + Math.random() * 18) * (1 + session.index * 4 / 9) * layoutSpeedFactor(currentBounds) * flightSpeedScale
+        const speedMultiplier = frogSpeedMultiplier(speedProgressRef.current)
+        const speed = (34 + Math.random() * 18) * speedMultiplier * layoutSpeedFactor(currentBounds) * flightSpeedScale
+        particle.speedMultiplier = speedMultiplier
         particle.vx = Math.cos(direction.angle) * speed
         particle.vy = Math.sin(direction.angle) * speed
       })
@@ -198,6 +202,13 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
       previousTime = time
       const currentBounds = bounds()
       particles.forEach(particle => {
+        const speedMultiplier = frogSpeedMultiplier(speedProgressRef.current)
+        if (particle.speedMultiplier !== speedMultiplier) {
+          const ratio = speedMultiplier / particle.speedMultiplier
+          particle.vx *= ratio
+          particle.vy *= ratio
+          particle.speedMultiplier = speedMultiplier
+        }
         particle.x += particle.vx * dt
         particle.y += particle.vy * dt
         const maxX = Math.max(0, currentBounds.width - particle.width)
@@ -264,7 +275,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
       }
       particles.forEach((particle, index) => {
         const speed = Math.hypot(particle.vx, particle.vy)
-        const maximumSpeed = 64 * (1 + session.index * 4 / 9) * layoutSpeedFactor(currentBounds) * flightSpeedScale
+        const maximumSpeed = 64 * frogSpeedMultiplier(speedProgressRef.current) * layoutSpeedFactor(currentBounds) * flightSpeedScale
         if (speed > maximumSpeed) {
           particle.vx = particle.vx / speed * maximumSpeed
           particle.vy = particle.vy / speed * maximumSpeed
@@ -313,6 +324,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
 
   useEffect(() => () => {
     if (defeatTimerRef.current !== null) window.clearTimeout(defeatTimerRef.current)
+    if (victoryTimerRef.current !== null) window.clearTimeout(victoryTimerRef.current)
   }, [])
   const facePoint = (clientX: number) => {
     const rect = stageRef.current?.getBoundingClientRect()
@@ -363,7 +375,11 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
         setLook({ frame: 0, mirror: false })
       }
       if (isCorrect) {
-        setProgress(value => Math.min(10, value + 1))
+        const nextProgress = Math.min(FROG_GOAL, progress + 1)
+        const countsForScore = session.index < FROG_SCORED_TURNS
+        const nextScore = session.score + (countsForScore && !session.mistake ? 1 : 0)
+        speedProgressRef.current = nextProgress
+        setProgress(nextProgress)
         setProgressMessage('Верно! Лягушка шагает вперёд.')
         if (messageTimerRef.current !== null) window.clearTimeout(messageTimerRef.current)
         messageTimerRef.current = window.setTimeout(() => {
@@ -377,12 +393,20 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
           setResultImpact(null)
         }, 520)
         audio.play('correct')
-        session.correct()
+        session.correct(countsForScore)
+        if (hasReachedFrogCrown(nextProgress)) {
+          victoryTimerRef.current = window.setTimeout(() => {
+            victoryTimerRef.current = null
+            onFinish(nextScore, session.mistakes)
+          }, 650)
+        }
         return
       }
       const cannotStepBack = progress === 0
       audio.play('wrong')
-      setProgress(value => Math.max(0, value - 1))
+      const nextProgress = Math.max(0, progress - 1)
+      speedProgressRef.current = nextProgress
+      setProgress(nextProgress)
       setProgressMessage(cannotStepBack ? 'Отступать некуда — попытка завершена.' : 'Ошибка — лягушка шагает назад.')
       if (messageTimerRef.current !== null) window.clearTimeout(messageTimerRef.current)
       messageTimerRef.current = window.setTimeout(() => {

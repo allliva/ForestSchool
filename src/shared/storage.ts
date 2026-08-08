@@ -4,8 +4,14 @@ import { levelAfterOutcome, rewardTierForLevel } from './rewards'
 export const STORAGE_KEY = 'forest-school:v1'
 export const defaultAudio: AudioSettings = { enabled: true, music: 0.22, effects: 0.55 }
 
+type LegacySessionRecord = SessionRecord & { hearts?: unknown }
+type LegacyStudentProfile = Omit<Partial<StudentProfile>, 'sessions'> & {
+  totalHearts?: unknown
+  sessions?: LegacySessionRecord[]
+}
+
 export function createProfile(name: string): StudentProfile {
-  return { version: 1, name: name.trim().slice(0, 24), createdAt: new Date().toISOString(), totalHearts: 0, level: 0, highestLevel: 0, appearanceTier: 0, sessions: [], audio: defaultAudio }
+  return { version: 1, name: name.trim().slice(0, 24), createdAt: new Date().toISOString(), level: 0, highestLevel: 0, appearanceTier: 0, sessions: [], audio: defaultAudio }
 }
 
 function levelsFromSessions(sessions: SessionRecord[]) {
@@ -22,18 +28,23 @@ export function loadProfile(): StudentProfile | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    const value = JSON.parse(raw) as Partial<StudentProfile>
+    const value = JSON.parse(raw) as LegacyStudentProfile
     if (value.version !== 1 || typeof value.name !== 'string' || !Array.isArray(value.sessions)) return null
-    const totalHearts = Number.isFinite(value.totalHearts) ? Math.max(0, Number(value.totalHearts)) : 0
-    const sessions = value.sessions.map(session => ({
-      ...session,
-      mistakes: Number.isFinite(session.mistakes) ? Math.max(0, Number(session.mistakes)) : 0,
-      outcome: session.outcome === 'loss' ? 'loss' as const : 'win' as const,
-    }))
+    const sessions = value.sessions.map(rawSession => {
+      const { hearts: _legacyHearts, ...session } = rawSession
+      void _legacyHearts
+      return {
+        ...session,
+        mistakes: Number.isFinite(session.mistakes) ? Math.max(0, Number(session.mistakes)) : 0,
+        outcome: session.outcome === 'loss' ? 'loss' as const : 'win' as const,
+      } as SessionRecord
+    })
     const rebuilt = levelsFromSessions(sessions)
     const level = Number.isFinite(value.level) ? Math.max(0, Math.floor(Number(value.level))) : rebuilt.level
     const highestLevel = Number.isFinite(value.highestLevel) ? Math.max(level, Math.floor(Number(value.highestLevel))) : Math.max(level, rebuilt.highestLevel)
-    return { ...createProfile(value.name), ...value, sessions, totalHearts, level, highestLevel, appearanceTier: rewardTierForLevel(level), audio: { ...defaultAudio, ...(value.audio ?? {}) }, version: 1 }
+    const { totalHearts: _legacyTotalHearts, ...currentProfile } = value
+    void _legacyTotalHearts
+    return { ...createProfile(value.name), ...currentProfile, sessions, level, highestLevel, appearanceTier: rewardTierForLevel(level), audio: { ...defaultAudio, ...(value.audio ?? {}) }, version: 1 }
   } catch { return null }
 }
 
@@ -41,10 +52,9 @@ export function saveProfile(profile: StudentProfile) { localStorage.setItem(STOR
 export function clearProfile() { localStorage.removeItem(STORAGE_KEY) }
 
 export function addSession(profile: StudentProfile, record: SessionRecord): StudentProfile {
-  const totalHearts = profile.totalHearts + record.hearts
   const level = levelAfterOutcome(profile.level, record.outcome)
   const highestLevel = Math.max(profile.highestLevel, level)
-  return { ...profile, totalHearts, level, highestLevel, appearanceTier: rewardTierForLevel(level), sessions: [record, ...profile.sessions] }
+  return { ...profile, level, highestLevel, appearanceTier: rewardTierForLevel(level), sessions: [record, ...profile.sessions] }
 }
 
 export function sampleUnique<T>(items: readonly T[], count = 10): T[] {

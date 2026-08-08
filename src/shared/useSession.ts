@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-export function useSession(total: number, onFinish: (score: number, mistakes: number) => void) {
+export function useSession(total: number | null, onFinish: (score: number, mistakes: number) => void) {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [mistakes, setMistakes] = useState(0)
@@ -12,13 +12,13 @@ export function useSession(total: number, onFinish: (score: number, mistakes: nu
     setFeedback('wrong')
     window.setTimeout(() => setFeedback('idle'), 550)
   }, [])
-  const correct = useCallback(() => {
+  const correct = useCallback((awardPoint = true) => {
     if (feedback === 'correct') return
-    const nextScore = score + (mistake ? 0 : 1)
+    const nextScore = score + (awardPoint && !mistake ? 1 : 0)
     setScore(nextScore)
     setFeedback('correct')
     window.setTimeout(() => {
-      if (index + 1 >= total) onFinish(nextScore, mistakes)
+      if (total !== null && index + 1 >= total) onFinish(nextScore, mistakes)
       else {
         setIndex(value => value + 1)
         setMistake(false)
@@ -26,5 +26,5 @@ export function useSession(total: number, onFinish: (score: number, mistakes: nu
       }
     }, 650)
   }, [feedback, index, mistake, mistakes, onFinish, score, total])
-  return { index, score, mistakes, feedback, wrong, correct }
+  return { index, score, mistakes, mistake, feedback, wrong, correct }
 }

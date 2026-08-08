@@ -1,10 +1,40 @@
 import type { ModeDefinition } from '../../../shared/types'
+import words from './words.json'
 
-export interface FrogTask { id: string; word: string; missing: string; options: string[]; hint: string }
+interface FrogWordRecord { id: string; word: string; missingIndex: number; options: string[] }
+export interface FrogTask extends FrogWordRecord { missing: string }
+
 export const frogModes: ModeDefinition[] = [{ id: 'words', title: 'Словарные слова', description: 'Поймай букву, которая спряталась из слова.', icon: '✨' }]
+export const FROG_GOAL = 10
+export const FROG_SCORED_TURNS = 10
 
-export const frogTasks: FrogTask[] = [
-  ['machine','машина','а',['а','о','и'],'Транспорт'], ['dog','собака','о',['а','о','у'],'Домашний друг'], ['crow','ворона','о',['а','о','е'],'Чёрная птица'], ['pencil','карандаш','а',['о','а','и'],'Им рисуют'], ['birch','берёза','е',['и','е','я'],'Белое дерево'], ['sparrow','воробей','о',['а','о','е'],'Маленькая птица'], ['magpie','сорока','о',['а','о','у'],'Птица с белыми боками'], ['frost','мороз','о',['а','о','е'],'Зимний холод'], ['girl','девочка','е',['и','е','я'],'Юная ученица'], ['student','ученик','е',['и','е','я'],'Учится в школе'], ['notebook','тетрадь','е',['и','е','я'],'В ней пишут'], ['bear','медведь','е',['и','е','я'],'Лесной великан'], ['fox','лисица','и',['е','и','я'],'Рыжая плутовка'], ['hare','заяц','а',['о','а','я'],'Длинные уши'], ['milk','молоко','о',['а','о','е'],'Белый напиток'], ['city','город','о',['а','о','е'],'Много домов'], ['road','дорога','о',['а','о','у'],'По ней идут'], ['apple','яблоко','о',['а','о','е'],'Фрукт'], ['potato','картофель','а',['о','а','е'],'Овощ'], ['coat','пальто','а',['о','а','я'],'Верхняя одежда'],
-].map(([id, word, missing, options, hint]) => ({ id, word, missing, options, hint } as FrogTask))
+export function frogSpeedMultiplier(progress: number) {
+  const stage = Math.max(0, Math.min(FROG_GOAL, progress))
+  return 1 + stage * 4 / FROG_GOAL
+}
 
-export function hiddenWord(task: FrogTask) { const index = task.word.indexOf(task.missing); return `${task.word.slice(0,index)}_${task.word.slice(index+1)}` }
+export const frogTasks: FrogTask[] = (words as FrogWordRecord[]).map(record => ({
+  ...record,
+  missing: record.word[record.missingIndex],
+}))
+
+export function shuffleFrogTasks(random = Math.random) {
+  const shuffled = [...frogTasks]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1))
+    ;[shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]]
+  }
+  return shuffled
+}
+
+export function frogTaskForTurn(tasks: FrogTask[], turn: number) {
+  return tasks[turn % tasks.length]
+}
+
+export function hiddenWord(task: FrogTask) {
+  return `${task.word.slice(0, task.missingIndex)}_${task.word.slice(task.missingIndex + 1)}`
+}
+
+export function hasReachedFrogCrown(progress: number) {
+  return progress >= FROG_GOAL
+}

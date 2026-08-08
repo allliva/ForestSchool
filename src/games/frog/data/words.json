@@ -1,0 +1,22 @@
+[
+  { "id": "machine",  "word": "машина",    "missingIndex": 1, "options": ["а", "о", "и"] },
+  { "id": "dog",      "word": "собака",    "missingIndex": 1, "options": ["а", "о", "у"] },
+  { "id": "crow",     "word": "ворона",    "missingIndex": 1, "options": ["а", "о", "е"] },
+  { "id": "pencil",   "word": "карандаш",  "missingIndex": 1, "options": ["о", "а", "и"] },
+  { "id": "birch",    "word": "берёза",    "missingIndex": 1, "options": ["и", "е", "я"] },
+  { "id": "sparrow",  "word": "воробей",   "missingIndex": 1, "options": ["а", "о", "е"] },
+  { "id": "magpie",   "word": "сорока",    "missingIndex": 1, "options": ["а", "о", "у"] },
+  { "id": "frost",    "word": "мороз",     "missingIndex": 1, "options": ["а", "о", "е"] },
+  { "id": "girl",     "word": "девочка",   "missingIndex": 3, "options": ["а", "о", "е"] },
+  { "id": "student",  "word": "ученик",    "missingIndex": 2, "options": ["и", "е", "я"] },
+  { "id": "notebook", "word": "тетрадь",   "missingIndex": 1, "options": ["и", "е", "я"] },
+  { "id": "bear",     "word": "медведь",   "missingIndex": 1, "options": ["и", "е", "я"] },
+  { "id": "fox",      "word": "лисица",    "missingIndex": 1, "options": ["е", "и", "я"] },
+  { "id": "hare",     "word": "заяц",      "missingIndex": 2, "options": ["о", "а", "я"] },
+  { "id": "milk",     "word": "молоко",    "missingIndex": 1, "options": ["а", "о", "е"] },
+  { "id": "city",     "word": "город",     "missingIndex": 3, "options": ["а", "о", "е"] },
+  { "id": "road",     "word": "дорога",    "missingIndex": 1, "options": ["а", "о", "у"] },
+  { "id": "apple",    "word": "яблоко",    "missingIndex": 3, "options": ["а", "о", "е"] },
+  { "id": "potato",   "word": "картофель", "missingIndex": 1, "options": ["о", "а", "е"] },
+  { "id": "coat",     "word": "пальто",    "missingIndex": 1, "options": ["о", "а", "я"] }
+]

@@ -1,5 +1,3 @@
-export const heartsForPercent = (percent: number) => percent === 100 ? 3 : percent >= 75 ? 2 : 1
-
 export const LEVELS_PER_REWARD = 2
 
 export const explorerRewards = [
@@ -22,7 +20,3 @@ export const titleForLevel = (level: number) => rewardTierForLevel(level) === 0
   : explorerRewards[rewardTierForLevel(level) - 1].title
 
 export const levelAfterOutcome = (level: number, outcome: 'win' | 'loss') => Math.max(0, Math.floor(level) + (outcome === 'win' ? 1 : -1))
-
-// Алиасы сохраняют совместимость старых импортов и CSS-классов профиля.
-export const appearanceTierForHearts = rewardTierForLevel
-export const tierNames = ['Начинающий исследователь', ...explorerRewards.map(reward => reward.title)]

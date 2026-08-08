@@ -1,4 +1,4 @@
-/* Каждый класс открывается за 5 сердец. */
+/* Ступени оформления открываются с ростом уровня исследователя. */
 .profile-showcase.tier-3 h1{-webkit-text-stroke:1px #3f7555;text-shadow:0 2px #fff}
 .profile-showcase.tier-4{box-shadow:0 0 45px #ffd96e,0 30px 70px #173f3430}
 .profile-showcase.tier-5:before{content:'🍃  🍃';position:absolute;top:18px;left:0;right:0;font-size:2rem}

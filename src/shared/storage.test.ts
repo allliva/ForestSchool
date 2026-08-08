@@ -1,7 +1,7 @@
 import { addSession, createProfile, loadProfile, sampleUnique, saveProfile, STORAGE_KEY } from './storage'
 import type { SessionRecord } from './types'
 
-const session = (id: string, outcome: 'win' | 'loss'): SessionRecord => ({ id, gameId:'frog', gameTitle:'Лягушка', modeId:'words', modeTitle:'Слова', completedAt:new Date().toISOString(), correct:8, total:10, percent:80, hearts:2, mistakes:2, outcome })
+const session = (id: string, outcome: 'win' | 'loss'): SessionRecord => ({ id, gameId:'frog', gameTitle:'Лягушка', modeId:'words', modeTitle:'Слова', completedAt:new Date().toISOString(), correct:8, total:10, percent:80, mistakes:2, outcome })
 
 describe('локальный профиль', () => {
   beforeEach(() => localStorage.clear())
@@ -20,11 +20,15 @@ describe('локальный профиль', () => {
   it('победа повышает уровень, а поражение понижает', () => {
     const afterWin = addSession(createProfile('Лев'), session('1', 'win'))
     expect(afterWin.level).toBe(1)
-    expect(afterWin.totalHearts).toBe(2)
     const afterLoss = addSession(afterWin, session('2', 'loss'))
     expect(afterLoss.level).toBe(0)
     expect(afterLoss.highestLevel).toBe(1)
     expect(afterLoss.sessions).toHaveLength(2)
+  })
+
+  it('не опускает уровень ниже нуля при повторных поражениях', () => {
+    const afterLoss = addSession(createProfile('Лев'), session('1', 'loss'))
+    expect(afterLoss.level).toBe(0)
   })
 
   it('потерянная награда остаётся отмеченной высшим достигнутым уровнем', () => {
@@ -43,6 +47,15 @@ describe('локальный профиль', () => {
     const loaded = loadProfile()
     expect(loaded?.level).toBe(1)
     expect(loaded?.highestLevel).toBe(2)
+  })
+
+  it('удаляет устаревшие сердечки при загрузке старого профиля', () => {
+    const legacySession = { ...session('1', 'win'), hearts: 3 }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...createProfile('Маша'), totalHearts: 12, sessions: [legacySession] }))
+    const loaded = loadProfile()
+    expect(loaded).not.toHaveProperty('totalHearts')
+    expect(loaded?.sessions[0]).not.toHaveProperty('hearts')
+    expect(loaded?.sessions[0].outcome).toBe('win')
   })
 
   it('создаёт выборку без повторов', () => expect(new Set(sampleUnique([1,2,3,4], 3)).size).toBe(3))

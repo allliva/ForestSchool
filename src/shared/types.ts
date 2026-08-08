@@ -12,7 +12,6 @@ export interface SessionRecord {
   correct: number
   total: number
   percent: number
-  hearts: number
   mistakes: number
   outcome: 'win' | 'loss'
 }
@@ -21,7 +20,6 @@ export interface StudentProfile {
   version: 1
   name: string
   createdAt: string
-  totalHearts: number
   level: number
   highestLevel: number
   appearanceTier: number

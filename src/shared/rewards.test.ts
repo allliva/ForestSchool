@@ -1,14 +1,6 @@
-import { explorerRewards, heartsForPercent, levelAfterOutcome, rewardTierForLevel, titleForLevel } from './rewards'
+import { explorerRewards, levelAfterOutcome, rewardTierForLevel, titleForLevel } from './rewards'
 
-describe('награды', () => {
-  it('выдаёт сердца по порогам', () => {
-    expect(heartsForPercent(0)).toBe(1)
-    expect(heartsForPercent(74)).toBe(1)
-    expect(heartsForPercent(75)).toBe(2)
-    expect(heartsForPercent(99)).toBe(2)
-    expect(heartsForPercent(100)).toBe(3)
-  })
-
+describe('награды и уровни', () => {
   it('повышает уровень за победу и понижает за поражение', () => {
     expect(levelAfterOutcome(3, 'win')).toBe(4)
     expect(levelAfterOutcome(3, 'loss')).toBe(2)

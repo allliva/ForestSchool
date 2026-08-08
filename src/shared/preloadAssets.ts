@@ -9,10 +9,36 @@ import frogSprite2 from '../games/frog/assets/frog-sprite-2.png'
 import frogSprite3 from '../games/frog/assets/frog-sprite-3.png'
 import frogSprite4 from '../games/frog/assets/frog-sprite-4.png'
 import frogSprite5 from '../games/frog/assets/frog-sprite-5.png'
-import squirrelBackground from '../games/squirrel/assets/squirrel-oak.webp'
+import squirrelBackground from '../games/squirrel/assets/autumn-clearing.webp'
+import squirrelIdle from '../games/squirrel/assets/squirrel-idle-v2.webp'
+import squirrelRun1 from '../games/squirrel/assets/squirrel-run-1-v2.webp'
+import squirrelRun2 from '../games/squirrel/assets/squirrel-run-2-v2.webp'
+import squirrelCatch from '../games/squirrel/assets/squirrel-catch-v2.webp'
+import squirrelThrow from '../games/squirrel/assets/squirrel-throw-v2.webp'
+import squirrelWrong from '../games/squirrel/assets/squirrel-wrong-v2.webp'
+import squirrelCelebrate from '../games/squirrel/assets/squirrel-celebrate-v2.webp'
+import chest1Closed from '../games/squirrel/assets/chest-1-closed-v2.webp'
+import chest1Open from '../games/squirrel/assets/chest-1-open-v2.webp'
+import chest2Closed from '../games/squirrel/assets/chest-2-closed-v2.webp'
+import chest2Open from '../games/squirrel/assets/chest-2-open-v2.webp'
+import chest3Closed from '../games/squirrel/assets/chest-3-closed-v2.webp'
+import chest3Open from '../games/squirrel/assets/chest-3-open-v2.webp'
+import oakParachute from '../games/squirrel/assets/oak-leaf-parachute-v3.webp'
+import squirrelAcorn from '../games/squirrel/assets/acorn-v4.webp'
+import progressEmpty from '../games/squirrel/assets/progress-acorn-empty-v2.webp'
+import progressFilled from '../games/squirrel/assets/progress-acorn-filled-v2.webp'
+import progressPantry from '../games/squirrel/assets/progress-pantry-v2.webp'
+import progressBadge from '../games/squirrel/assets/progress-badge-v2.webp'
 import beaverBackground from '../games/beaver/assets/beaver-river.webp'
 
-const visualAssets = [frogBackground, frogProgress, frogCrown, frogFly, frogWordLily, frogSprite0, frogSprite1, frogSprite2, frogSprite3, frogSprite4, frogSprite5, squirrelBackground, beaverBackground]
+const visualAssets = [
+  frogBackground, frogProgress, frogCrown, frogFly, frogWordLily,
+  frogSprite0, frogSprite1, frogSprite2, frogSprite3, frogSprite4, frogSprite5,
+  squirrelBackground, squirrelIdle, squirrelRun1, squirrelRun2, squirrelCatch, squirrelThrow, squirrelWrong, squirrelCelebrate,
+  chest1Closed, chest1Open, chest2Closed, chest2Open, chest3Closed, chest3Open,
+  oakParachute, squirrelAcorn, progressEmpty, progressFilled, progressPantry, progressBadge,
+  beaverBackground,
+]
 
 function preloadImage(source: string) {
   return new Promise<void>(resolve => {

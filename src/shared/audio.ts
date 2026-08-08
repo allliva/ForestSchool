@@ -1,6 +1,6 @@
 import type { AudioSettings } from './types'
 
-type SoundName = 'tap' | 'tongue' | 'correct' | 'wrong' | 'reward' | 'finish'
+export type SoundName = 'tap' | 'tongue' | 'chest' | 'catch' | 'correct' | 'wrong' | 'reward' | 'finish'
 
 class ForestAudio {
   private ctx?: AudioContext
@@ -14,7 +14,16 @@ class ForestAudio {
   play(name: SoundName) {
     if (!this.settings.enabled) return
     const ctx = this.context(); const now = ctx.currentTime
-    const map: Record<SoundName, [number[], OscillatorType, number]> = { tap: [[520], 'sine', .07], tongue: [[330, 460], 'sine', .08], correct: [[520, 720, 920], 'sine', .12], wrong: [[210, 160], 'triangle', .14], reward: [[660, 880, 1100], 'sine', .18], finish: [[440, 660, 880, 1040], 'triangle', .2] }
+    const map: Record<SoundName, [number[], OscillatorType, number]> = {
+      tap: [[520], 'sine', .07],
+      tongue: [[330, 460], 'sine', .08],
+      chest: [[185, 245], 'triangle', .09],
+      catch: [[620, 820], 'sine', .08],
+      correct: [[520, 720, 920], 'sine', .12],
+      wrong: [[210, 160], 'triangle', .14],
+      reward: [[660, 880, 1100], 'sine', .18],
+      finish: [[440, 660, 880, 1040], 'triangle', .2],
+    }
     const [notes, type, duration] = map[name]
     notes.forEach((frequency, index) => {
       const osc = ctx.createOscillator(); const gain = ctx.createGain(); const start = now + index * duration * .65
