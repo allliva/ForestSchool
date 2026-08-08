@@ -7,7 +7,7 @@ import { sampleUnique } from '../../../shared/storage'
 import { answerForTask, squirrelTasks, syllableCategories } from '../data/tasks'
 import '../styles/squirrel.css'
 
-export function SquirrelGame({ onFinish, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
+export function SquirrelGame({ onFinish, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number, mistakes: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
   const tasks = useMemo(() => sampleUnique(squirrelTasks, 10), [])
   const session = useSession(tasks.length, onFinish)
   const task = tasks[session.index]
@@ -21,7 +21,7 @@ export function SquirrelGame({ onFinish, onExit, onHelp, onAudio }: { modeId: st
   }
   const travel = deliveryTarget === null ? 0 : (window.innerWidth < 650 ? 68 + deliveryTarget * 102 : 190 + deliveryTarget * 245)
 
-  return <GameShell game="squirrel" title="Сколько слогов?" index={session.index} score={session.score} onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
+  return <GameShell game="squirrel" onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
     <section className={`squirrel-stage feedback-${session.feedback}`}>
       <div className="falling-leaves" aria-hidden="true"><i>◆</i><i>◆</i><i>◆</i></div>
       <motion.div className="nut-card" key={task.id} drag dragSnapToOrigin

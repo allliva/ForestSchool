@@ -45,7 +45,7 @@
 @media (max-width: 650px) {
   .frog-tracker {
     bottom: 8px;
-    width: clamp(145px, min(38vw, 34dvh), 185px);
+    width: clamp(132px, min(34vw, 30dvh), 168px);
   }
 
 }
@@ -91,3 +91,10 @@
   filter: drop-shadow(0 8px 8px rgba(20, 91, 51, .42));
 }
 .letter-result-effect.correct i { background: #baff73; }
+@media(max-height:800px) and (orientation:landscape){
+  .frog-tracker{bottom:2px;width:clamp(100px,21dvh,142px)}
+}
+@media(orientation:portrait){
+  .frog-tracker{bottom:1px;width:clamp(68px,20vw,90px)}
+}
+.frog-stage .frog-tracker{width:19cqw}

@@ -28,9 +28,9 @@ function randomLetters(correct: string, suggestions: string[]) {
   return [...pool].sort(() => Math.random() - .5).slice(0, 7)
 }
 
-interface TongueShot { startX: number; startY: number; endX: number; endY: number }
+interface TongueShot { startX: number; startY: number; endX: number; endY: number; thickness: number }
 
-export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number) => void; onFail: (score: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
+export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number, mistakes: number) => void; onFail: (score: number, mistakes: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
   const tasks = useMemo(() => sampleUnique(frogTasks, 10), [])
   const session = useSession(tasks.length, onFinish)
   const task = tasks[session.index]
@@ -43,6 +43,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
   const wrongEffectTimerRef = useRef<number | null>(null)
   const messageTimerRef = useRef<number | null>(null)
   const defeatTimerRef = useRef<number | null>(null)
+  const touchShotRef = useRef(false)
   const [caught, setCaught] = useState<number | null>(null)
   const [tongue, setTongue] = useState<TongueShot | null>(null)
   const [resultImpact, setResultImpact] = useState<{ x: number; y: number; correct: boolean } | null>(null)
@@ -50,13 +51,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
   const [progressMessage, setProgressMessage] = useState('')
   const [look, setLook] = useState({ frame: 0, mirror: false })
 
-  useEffect(() => {
-    frogFrames.forEach(source => {
-      const image = new Image()
-      image.src = source
-      void image.decode().catch(() => undefined)
-    })
-  }, [])
+
 
   useEffect(() => {
     const area = flyAreaRef.current
@@ -319,12 +314,25 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
   useEffect(() => () => {
     if (defeatTimerRef.current !== null) window.clearTimeout(defeatTimerRef.current)
   }, [])
-  const trackPointer = (event: React.PointerEvent<HTMLElement>) => {
+  const facePoint = (clientX: number) => {
     const rect = stageRef.current?.getBoundingClientRect()
     if (!rect) return
-    const nx = Math.max(-1, Math.min(1, (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)))
+    const nx = Math.max(-1, Math.min(1, (clientX - (rect.left + rect.width / 2)) / (rect.width / 2)))
     const zone = Math.min(11, Math.max(0, Math.floor((nx + 1) / 2 * 12)))
     setLook(zone < 6 ? { frame: 5 - zone, mirror: true } : { frame: zone - 6, mirror: false })
+  }
+
+  const trackPointer = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType !== 'touch') {
+      touchShotRef.current = false
+      facePoint(event.clientX)
+    }
+  }
+
+  const faceFlyBeforeShot = (event: React.PointerEvent<HTMLButtonElement>) => {
+    touchShotRef.current = event.pointerType === 'touch'
+    const targetRect = event.currentTarget.getBoundingClientRect()
+    facePoint(targetRect.left + targetRect.width / 2)
   }
 
   const choose = (letter: string, index: number, event: MouseEvent<HTMLButtonElement>) => {
@@ -333,6 +341,7 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
     const frogRect = frogRef.current?.getBoundingClientRect()
     const targetRect = event.currentTarget.getBoundingClientRect()
     if (!stageRect || !frogRect) return
+    facePoint(targetRect.left + targetRect.width / 2)
     const isCorrect = letter === task.missing
     audio.play('tap')
     audio.play('tongue')
@@ -344,10 +353,15 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
       startY: mouthY,
       endX: targetRect.left + targetRect.width * .5 - stageRect.left,
       endY: targetRect.top + targetRect.height * .53 - stageRect.top,
+      thickness: Math.max(7, Math.min(22, frogRect.width * .09)),
     })
     setCaught(index)
     captureTimerRef.current = window.setTimeout(() => {
       captureTimerRef.current = null
+      if (touchShotRef.current) {
+        touchShotRef.current = false
+        setLook({ frame: 0, mirror: false })
+      }
       if (isCorrect) {
         setProgress(value => Math.min(10, value + 1))
         setProgressMessage('Верно! Лягушка шагает вперёд.')
@@ -385,11 +399,12 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
       if (cannotStepBack) {
         defeatTimerRef.current = window.setTimeout(() => {
           defeatTimerRef.current = null
-          onFail(session.score)
+          onFail(session.score, session.mistakes + 1)
         }, 720)
       } else {
         setTongue(null)
-      }    }, captureDuration * 1000)
+      }
+    }, captureDuration * 1000)
   }
 
   const tongueVector = tongue ? (() => {
@@ -398,13 +413,15 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
     return {
       distance: Math.hypot(dx, dy),
       angle: Math.atan2(dy, dx) * 180 / Math.PI,
+      height: tongue.thickness + 8,
+      middle: (tongue.thickness + 8) / 2,
     }
   })() : null
 
   const frogFrame = frogFrames[look.frame]
 
-  return <GameShell game="frog" title="Словарные слова" index={session.index} score={session.score} onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
-    <section ref={stageRef} className={'frog-stage feedback-' + session.feedback} onPointerMove={trackPointer} onPointerLeave={() => setLook({ frame: 0, mirror: false })}>
+  return <GameShell game="frog" onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
+    <section ref={stageRef} className={'frog-stage feedback-' + session.feedback} onPointerMove={trackPointer} onPointerLeave={event => { if (event.pointerType !== 'touch') setLook({ frame: 0, mirror: false }) }}>
       <div className="mist mist-one"/><div className="mist mist-two"/>
       <div className="frog-quest-progress" aria-label={'Лягушка прошла ' + progress + ' из 10 шагов до короны'}>
         <div className="quest-track">
@@ -414,18 +431,18 @@ export function FrogGame({ onFinish, onFail, onExit, onHelp, onAudio }: { modeId
         <motion.img className="quest-crown" src={frogCrown} alt="Корона — цель" animate={progress === 10 ? { scale: [1, 1.3, 1.08], rotate: [0, -7, 7, 0] } : { scale: 1 }}/>
       </div>
       <motion.div className="word-lily" key={task.id} initial={{ scale: .72, y: 28 }} animate={{ scale: 1, y: 0 }}>
-        <small>Подсказка: {task.hint}</small><strong>{session.feedback === 'correct' ? task.word : hiddenWord(task)}</strong><span>Поймай муху с нужной буквой</span>
+        <strong>{session.feedback === 'correct' ? task.word : hiddenWord(task)}</strong>
       </motion.div>
       <div ref={flyAreaRef} className="flies" aria-label="Летающие варианты букв">
-        {flies.map((letter, index) => <div ref={node => { flyNodeRefs.current[index] = node }} className="fly-flight" key={task.id + '-' + letter}><motion.button className={'letter-fly ' + (caught === index ? 'caught' : '')} aria-label={'Муха с буквой ' + letter} onClick={event => choose(letter, index, event)} animate={caught === index ? { opacity: [1, 1, 1, 1, 1, 1, 0], scale: [1, 1.08, .94, 1.07, .96, 1, .92], rotate: [0, -12, 12, -10, 9, 0, 0] } : { opacity: 1, scale: 1, rotate: 0 }} transition={caught === index ? { duration: captureDuration * .34, times: [0, .12, .24, .36, .5, .75, 1], ease: 'easeOut' } : { duration: .2 }}><img src={flySprite} alt="" draggable={false}/><b className="fly-letter">{letter}</b></motion.button></div>)}
+        {flies.map((letter, index) => <div ref={node => { flyNodeRefs.current[index] = node }} className="fly-flight" key={task.id + '-' + letter}><motion.button className={'letter-fly ' + (caught === index ? 'caught' : '')} aria-label={'Муха с буквой ' + letter} onPointerDown={faceFlyBeforeShot} onClick={event => choose(letter, index, event)} animate={caught === index ? { opacity: [1, 1, 1, 1, 1, 1, 0], scale: [1, 1.08, .94, 1.07, .96, 1, .92], rotate: [0, -12, 12, -10, 9, 0, 0] } : { opacity: 1, scale: 1, rotate: 0 }} transition={caught === index ? { duration: captureDuration * .34, times: [0, .12, .24, .36, .5, .75, 1], ease: 'easeOut' } : { duration: .2 }}><span className="fly-visual"><img src={flySprite} alt="" draggable={false}/><b className="fly-letter">{letter}</b></span></motion.button></div>)}
       </div>
-      {tongue && tongueVector && <motion.svg className="generated-tongue" style={{ left: tongue.startX, top: tongue.startY - 15, width: tongueVector.distance, height: 30, rotate: String(tongueVector.angle) + 'deg' }} viewBox={'0 0 ' + tongueVector.distance + ' 30'} preserveAspectRatio="none" aria-hidden="true">
+      {tongue && tongueVector && <motion.svg className="generated-tongue" style={{ left: tongue.startX, top: tongue.startY - tongueVector.middle, width: tongueVector.distance, height: tongueVector.height, rotate: String(tongueVector.angle) + 'deg' }} viewBox={'0 0 ' + tongueVector.distance + ' ' + tongueVector.height} preserveAspectRatio="none" aria-hidden="true">
         <defs><linearGradient id="tongue-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#c83f66"/><stop offset=".45" stopColor="#ff7898"/><stop offset="1" stopColor="#ff9bb0"/></linearGradient></defs>
-        <motion.line x1="0" y1="15" x2={tongueVector.distance} y2="15" stroke="#a72f55" strokeWidth="22" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1, 0] }} transition={{ duration: captureDuration, times: [0, .34, .44, 1], ease: 'easeInOut' }}/>
-        <motion.line x1="0" y1="15" x2={tongueVector.distance} y2="15" stroke="url(#tongue-gradient)" strokeWidth="16" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1, 0] }} transition={{ duration: captureDuration, times: [0, .34, .44, 1], ease: 'easeInOut' }}/>
-        <motion.line x1="4" y1="11" x2={Math.max(4, tongueVector.distance - 5)} y2="11" stroke="#ffc1cf" strokeWidth="3" strokeLinecap="round" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: [0, 1, 1, 0], opacity: [0, .75, .75, 0] }} transition={{ duration: captureDuration, times: [0, .34, .44, 1], ease: 'easeInOut' }}/>
+        <motion.line x1="0" y1={tongueVector.middle} x2={tongueVector.distance} y2={tongueVector.middle} stroke="#a72f55" strokeWidth={tongue.thickness} strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1, 0] }} transition={{ duration: captureDuration, times: [0, .34, .44, 1], ease: 'easeInOut' }}/>
+        <motion.line x1="0" y1={tongueVector.middle} x2={tongueVector.distance} y2={tongueVector.middle} stroke="url(#tongue-gradient)" strokeWidth={tongue.thickness * .72} strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1, 0] }} transition={{ duration: captureDuration, times: [0, .34, .44, 1], ease: 'easeInOut' }}/>
+        <motion.line x1="4" y1={tongueVector.middle - tongue.thickness * .18} x2={Math.max(4, tongueVector.distance - 5)} y2={tongueVector.middle - tongue.thickness * .18} stroke="#ffc1cf" strokeWidth={Math.max(1.2, tongue.thickness * .14)} strokeLinecap="round" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: [0, 1, 1, 0], opacity: [0, .75, .75, 0] }} transition={{ duration: captureDuration, times: [0, .34, .44, 1], ease: 'easeInOut' }}/>
       </motion.svg>}
-      {tongue && caught !== null && <motion.div className="captured-fly" style={{ left: tongue.endX, top: tongue.endY }} initial={{ x: 0, y: 0, scale: 1, opacity: 0 }} animate={{ x: [0, 0, 0, 0, tongue.startX - tongue.endX], y: [0, 0, 0, 0, tongue.startY - tongue.endY], scale: [1, 1, 1, 1, .22], opacity: [0, 0, 1, 1, 0] }} transition={{ duration: captureDuration, times: [0, .3, .34, .44, 1], ease: 'easeInOut' }} aria-hidden="true"><img src={flySprite} alt=""/><b className="fly-letter">{flies[caught]}</b></motion.div>}
+      {tongue && caught !== null && <motion.div className="captured-fly" style={{ left: tongue.endX, top: tongue.endY }} initial={{ x: 0, y: 0, scale: 1, opacity: 0 }} animate={{ x: [0, 0, 0, 0, tongue.startX - tongue.endX], y: [0, 0, 0, 0, tongue.startY - tongue.endY], scale: [1, 1, 1, 1, .22], opacity: [0, 0, 1, 1, 0] }} transition={{ duration: captureDuration, times: [0, .3, .34, .44, 1], ease: 'easeInOut' }} aria-hidden="true"><span className="fly-visual"><img src={flySprite} alt=""/><b className="fly-letter">{flies[caught]}</b></span></motion.div>}
       {resultImpact && <motion.div className={'letter-result-effect ' + (resultImpact.correct ? 'correct' : 'wrong')} style={{ left: resultImpact.x, top: resultImpact.y }} initial={{ scale: .2, opacity: 0, rotate: -25 }} animate={{ scale: [1, 1.45, .8], opacity: [0, 1, 0], rotate: [-25, 12, 0] }} transition={{ duration: .52, ease: 'easeOut' }} aria-hidden="true"><span>{resultImpact.correct ? '✓' : '×'}</span><i/><i/><i/></motion.div>}
       <div className="frog-tracker">
         <div ref={frogRef} className="frog-sprite">

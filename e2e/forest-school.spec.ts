@@ -18,7 +18,7 @@ test('главная показывает три готовые карточки
 
 test('лягушка открывает интерактивное задание', async ({ page }) => {
   await page.locator('.frog-card').getByRole('button', { name: /Играть/ }).click()
-  await expect(page.getByText('Поймай муху с нужной буквой')).toBeVisible()
+  await expect(page.getByLabel('Летающие варианты букв')).toBeVisible()
   await expect(page.locator('.letter-fly')).toHaveCount(7)
   const stage = await page.locator('.frog-stage').boundingBox()
   expect(stage).not.toBeNull()

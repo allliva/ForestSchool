@@ -13,6 +13,8 @@ export interface SessionRecord {
   total: number
   percent: number
   hearts: number
+  mistakes: number
+  outcome: 'win' | 'loss'
 }
 
 export interface StudentProfile {
@@ -20,6 +22,8 @@ export interface StudentProfile {
   name: string
   createdAt: string
   totalHearts: number
+  level: number
+  highestLevel: number
   appearanceTier: number
   sessions: SessionRecord[]
   audio: AudioSettings

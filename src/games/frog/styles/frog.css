@@ -1,4 +1,4 @@
-.frog-theme{background-image:linear-gradient(180deg,rgba(11,75,64,.08),rgba(9,74,74,.3)),url('../assets/frog-pond-lily.png');background-size:cover;background-position:center bottom}.frog-stage{position:relative;min-height:calc(100dvh - 150px);overflow:hidden;isolation:isolate}.word-lily{position:absolute;z-index:8;top:3%;left:50%;transform:translateX(-50%)!important;width:min(540px,88%);padding:14px 28px 22px;text-align:center;border-radius:50% 50% 42% 42%;background:linear-gradient(145deg,#f5ffcf,#bde866);box-shadow:0 20px 35px #0a4c4966,inset 0 -8px 0 #77b844;border:2px solid #e9ffae}.word-lily small,.word-lily span{display:block;color:#42673d;font-weight:700}.word-lily strong{display:block;font-size:clamp(2.4rem,7vw,4.7rem);letter-spacing:.12em;color:#173f34;text-transform:uppercase}.flies{position:absolute;z-index:6;inset:25% 5% 28%}.letter-fly{position:absolute;width:72px;height:58px;padding:0;border:0;background:transparent;cursor:pointer;color:#fff;font-size:1.35rem;font-weight:900}.letter-fly.caught{filter:saturate(.3);opacity:.75}.mist{position:absolute;border-radius:50%;background:#fff5;filter:blur(8px);width:280px;height:60px}.mist-one{left:-60px;top:18%}.mist-two{right:-80px;bottom:18%}@media(max-width:650px){.frog-stage{min-height:calc(100dvh - 180px)}.word-lily{top:1%;padding:10px 18px 16px}.word-lily strong{font-size:2.65rem}.flies{inset:27% 2% 34%}.letter-fly{width:60px;height:50px}.feedback-bubble{max-width:90%}}
+.frog-theme{background-image:linear-gradient(180deg,rgba(11,75,64,.08),rgba(9,74,74,.3)),url('../assets/frog-pond-lily.png');background-size:cover;background-position:center bottom}.frog-stage{position:relative;min-height:calc(100dvh - 150px);overflow:hidden;isolation:isolate}.word-lily{position:absolute;z-index:8;top:3%;left:50%;translate:-50% 0;width:min(540px,88%);padding:14px 28px 22px;text-align:center;border-radius:50% 50% 42% 42%;background:linear-gradient(145deg,#f5ffcf,#bde866);box-shadow:0 20px 35px #0a4c4966,inset 0 -8px 0 #77b844;border:2px solid #e9ffae}.word-lily small,.word-lily span{display:block;color:#42673d;font-weight:700}.word-lily strong{display:block;font-size:clamp(2.4rem,7vw,4.7rem);letter-spacing:.12em;color:#173f34;text-transform:uppercase}.flies{position:absolute;z-index:6;inset:25% 5% 28%}.letter-fly{position:absolute;width:72px;height:58px;padding:0;border:0;background:transparent;cursor:pointer;color:#fff;font-size:1.35rem;font-weight:900}.letter-fly.caught{filter:saturate(.3);opacity:.75}.mist{position:absolute;border-radius:50%;background:#fff5;filter:blur(8px);width:280px;height:60px}.mist-one{left:-60px;top:18%}.mist-two{right:-80px;bottom:18%}@media(max-width:650px){.frog-stage{min-height:calc(100dvh - 180px)}.word-lily{top:1%;padding:10px 18px 16px}.word-lily strong{font-size:2.65rem}.flies{inset:27% 2% 34%}.letter-fly{width:60px;height:50px}.feedback-bubble{max-width:90%}}
 
 /* Generated 3D fly sprite: the dynamic letter sits on its pale abdomen. */
 .letter-fly{width:131px;height:131px;color:#233a32;font-size:clamp(1rem,2vw,1.45rem);font-weight:900;filter:drop-shadow(0 8px 9px #163f3970)}
@@ -64,4 +64,136 @@
     background-size:auto 100%;
     background-position:center bottom;
   }
+}
+/* Mobile vertical rhythm: progress, word, flight field, frog. */
+@media(max-width:650px){
+  .frog-quest-progress{top:6px;height:62px}
+  .frog-stage .word-lily{top:76px;width:min(540px,92%);padding:8px 16px 13px}
+  .frog-stage .flies{top:clamp(205px,24%,230px);right:2%;bottom:clamp(118px,25%,230px);left:2%}
+  .fly-flight{width:clamp(60px,17vw,70px);height:clamp(60px,17vw,70px)}
+  .captured-fly{width:clamp(60px,17vw,70px);height:clamp(60px,17vw,70px)}
+}
+@media(max-width:420px){
+  .frog-stage .word-lily{top:72px}
+  .frog-stage .flies{top:clamp(198px,25%,218px);bottom:clamp(112px,24%,180px)}
+  .fly-flight{width:clamp(58px,17vw,66px);height:clamp(58px,17vw,66px)}
+  .captured-fly{width:clamp(58px,17vw,66px);height:clamp(58px,17vw,66px)}
+}
+.frog-stage .word-lily{top:100px}
+@media(max-width:650px){
+  .frog-quest-progress{top:5px;width:88%;height:54px}
+  .quest-track{left:10px;right:49px;top:17px;height:30px}
+  .quest-track i{width:18px;height:18px}
+  .quest-track i span{font-size:.5rem}
+  .progress-frog{width:38px;height:40px;bottom:-8px}
+  .quest-crown{width:47px;height:47px;top:-2px}
+  .frog-stage .word-lily{top:64px;width:88%;padding:6px 13px 10px}
+  .frog-stage .word-lily small,.frog-stage .word-lily span{font-size:.7rem}
+  .frog-stage .word-lily strong{font-size:clamp(1.55rem,8.4vw,2.05rem)}
+  .frog-stage .flies{top:clamp(178px,23%,210px);bottom:clamp(105px,23%,205px)}
+  .fly-flight,.captured-fly{width:clamp(56px,16vw,64px);height:clamp(56px,16vw,64px)}
+}
+@media(max-width:420px){
+  .frog-stage .word-lily{top:61px;width:90%}
+  .frog-stage .flies{top:clamp(172px,24%,198px);bottom:clamp(100px,22%,165px)}
+  .fly-flight,.captured-fly{width:clamp(54px,16vw,62px);height:clamp(54px,16vw,62px)}
+}
+.frog-stage{
+  background-image:linear-gradient(180deg,rgba(11,75,64,.08),rgba(9,74,74,.3)),url('../assets/frog-pond-lily.png');
+  background-size:cover;
+  background-position:center bottom;
+}
+@media(max-height:800px) and (orientation:landscape){
+  .frog-theme{background-image:none;background:#173f34}
+  .frog-stage{
+    width:min(100%,calc(100dvh * 1.7768));
+    min-height:0;
+    aspect-ratio:1672 / 941;
+    margin:0 auto;
+    background-size:cover;
+    background-position:center;
+    box-shadow:0 18px 55px #061c1999;
+  }
+  .frog-quest-progress{top:2px;width:72%;height:44px}
+  .quest-track{left:8px;right:44px;top:13px;height:26px}
+  .quest-track::before{height:5px}
+  .quest-track i{width:17px;height:17px;border-width:2px}
+  .quest-track i span{font-size:.48rem}
+  .progress-frog{width:34px;height:36px;bottom:-7px}
+  .quest-crown{width:42px;height:42px;top:-1px}
+  .frog-stage .word-lily{top:48px;width:min(430px,52%);padding:5px 12px 8px}
+  .frog-stage .word-lily small,.frog-stage .word-lily span{font-size:.62rem}
+  .frog-stage .word-lily strong{font-size:clamp(1.35rem,4.2vw,1.85rem)}
+  .frog-stage .flies{top:116px;right:2%;bottom:78px;left:2%}
+  .fly-flight,.captured-fly{width:clamp(46px,8.5dvh,58px);height:clamp(46px,8.5dvh,58px)}
+}
+/* The complete 16:9 illustration is the game coordinate frame in every orientation. */
+.frog-theme{height:100dvh;min-height:100dvh;overflow:hidden;background-color:#274f48;background-image:linear-gradient(180deg,rgba(10,37,34,.72),rgba(22,55,45,.82)),url('../assets/frog-pond-lily.png');background-size:cover;background-position:center;background-blend-mode:multiply}
+.frog-stage{
+  width:min(100%,calc(100dvh * 1.7768));
+  min-height:0;
+  aspect-ratio:1672 / 941;
+  margin-inline:auto;
+  background-size:cover;
+  background-position:center;
+}
+@media(orientation:portrait){
+  .frog-stage{width:100%;min-height:0;aspect-ratio:1672 / 941;box-shadow:0 16px 42px #061c1988}
+  .frog-quest-progress{top:1px;width:84%;height:31px}
+  .quest-track{left:5px;right:32px;top:7px;height:21px}
+  .quest-track::before{height:4px}
+  .quest-track i{width:14px;height:14px;border-width:1px}
+  .quest-track i span{font-size:.4rem}
+  .progress-frog{width:25px;height:27px;bottom:-5px}
+  .quest-crown{width:31px;height:31px;top:0}
+  .frog-stage .word-lily{top:32px;width:76%;padding:2px 8px 5px;border-width:1px;box-shadow:0 8px 15px #0a4c4944,inset 0 -4px 0 #77b844}
+  .frog-stage .word-lily small,.frog-stage .word-lily span{font-size:clamp(.43rem,1.8vw,.58rem);line-height:1.05}
+  .frog-stage .word-lily strong{font-size:clamp(1.05rem,5.7vw,1.5rem);line-height:1;letter-spacing:.08em}
+  .frog-stage .flies{top:82px;right:2%;bottom:40px;left:2%}
+  .fly-flight,.captured-fly{width:clamp(44px,12vw,52px);height:clamp(44px,12vw,52px)}
+  .fly-letter{font-size:clamp(.75rem,2.8vw,.95rem)}
+  .mist{scale:.45}
+}
+.frog-theme .game-overlay-controls{width:min(calc(100% - 16px),calc(100dvh * 1.7768));left:50%;right:auto;translate:-50% 0}
+@media(orientation:portrait){.frog-quest-progress{width:62%}}
+/* Character scale follows the 16:9 game frame, not the browser viewport. */
+.frog-stage{container-type:inline-size;--fly-visual-size:6.8cqw}
+.frog-stage .fly-flight,.frog-stage .captured-fly{width:max(44px,var(--fly-visual-size));height:max(44px,var(--fly-visual-size))}
+.fly-visual{position:absolute;left:50%;top:50%;width:var(--fly-visual-size);height:var(--fly-visual-size);translate:-50% -50%;pointer-events:none}
+.fly-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none}
+.fly-visual .fly-letter{font-size:clamp(.55rem,1.45cqw,1.45rem)}
+/* ImageGen lily plaque: text remains live HTML above this decorative asset. */
+.frog-stage .word-lily{
+  top:clamp(52px,10%,100px);
+  font-size:clamp(1.2rem,5.5cqw,4.4rem);
+  width:min(88%,9.2em);
+  aspect-ratio:1400 / 438;
+  box-sizing:border-box;
+  display:grid;
+  place-items:center;
+  left:50%;
+  right:auto;
+  translate:-50% 0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:url('../assets/frog-word-lily-v2.webp') center / 100% 100% no-repeat;
+  box-shadow:none;
+}
+.frog-stage .word-lily strong{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0 12%;
+  font-size:1em;
+  line-height:1;
+  letter-spacing:.1em;
+  text-align:center;
+}
+@media(orientation:portrait){
+  .frog-stage .word-lily{top:40px}
 }

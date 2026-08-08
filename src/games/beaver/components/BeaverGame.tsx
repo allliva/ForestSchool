@@ -10,7 +10,7 @@ import '../styles/beaver.css'
 
 const shuffle = <T,>(items: readonly T[]) => [...items].sort(() => Math.random() - .5)
 
-export function BeaverGame({ onFinish, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
+export function BeaverGame({ onFinish, onExit, onHelp, onAudio }: { modeId: string; onFinish: (score: number, mistakes: number) => void; onExit: () => void; onHelp: () => void; onAudio: () => void }) {
   const [tasks] = useState(() => sampleUnique(beaverTasks, 10))
   const session = useSession(tasks.length, onFinish)
   const task = tasks[session.index]
@@ -31,7 +31,7 @@ export function BeaverGame({ onFinish, onExit, onHelp, onAudio }: { modeId: stri
   const step = window.innerWidth < 650 ? 44 : 76
   const beaverX = session.feedback === 'correct' ? Math.min(560, task.words.length * step + 180) : bridge.length * step
 
-  return <GameShell game="beaver" title="Собери предложение" index={session.index} score={session.score} onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
+  return <GameShell game="beaver" onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
     <section className={`beaver-stage feedback-${session.feedback}`}>
       <div className="river-sparkles" aria-hidden="true">✦ · ✧ · ✦</div>
       <div className="beaver-prompt"><small>Передавай бобру брёвна по порядку</small><strong>{bridge.length ? bridge.join(' ') : 'Собери правильное предложение'}</strong></div>
