@@ -29,6 +29,8 @@ describe('игра белочки', () => {
     render(<SquirrelGame modeId="syllables" onFinish={vi.fn()} onFail={vi.fn()} onExit={vi.fn()} onHelp={vi.fn()} onAudio={vi.fn()}/>)
     fireEvent.click(answerButton(true))
     expect(screen.getAllByRole('button', { name: /Положить жёлудь в сундук/ }).every(button => button.hasAttribute('disabled'))).toBe(true)
+    expect(document.querySelector('.squirrel-stage')).toHaveClass('flight-to-squirrel')
+    expect(document.querySelector('.oak-drop')).toHaveAttribute('data-falling-away', 'true')
     act(() => vi.advanceTimersByTime(300))
     expect(document.querySelector('.squirrel-character img')).toHaveAttribute('src', expect.stringContaining('squirrel-catch-v2'))
     expect(document.querySelector('.flying-acorn')).not.toBeInTheDocument()

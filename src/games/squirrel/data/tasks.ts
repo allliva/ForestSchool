@@ -80,6 +80,12 @@ export function hasFilledPantry(progress: number) {
   return progress >= SQUIRREL_GOAL
 }
 
-export function squirrelFallDuration(level: number) {
-  return Math.max(7, 14 - Math.max(0, Math.floor(level)) * .4)
+export function squirrelFallSpeedMultiplier(progress: number) {
+  const stage = Math.max(0, Math.min(SQUIRREL_GOAL, progress))
+  return 1 + stage * 2 / SQUIRREL_GOAL
+}
+
+export function squirrelFallDuration(level: number, progress = 0) {
+  const baseDuration = Math.max(6, 14 - Math.max(0, Math.floor(level)) * .8)
+  return Math.max(3, baseDuration / squirrelFallSpeedMultiplier(progress))
 }

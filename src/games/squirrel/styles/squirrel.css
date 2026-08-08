@@ -96,8 +96,7 @@
   white-space:nowrap;
 }
 .hanging-acorn{position:absolute;z-index:1;top:13.8cqh;left:50%;translate:-50% 0;width:5.2cqw;height:8.3cqh;object-fit:contain;filter:drop-shadow(0 .55cqh .45cqh #43220a55)}
-.flight-to-squirrel .hanging-acorn{opacity:0}
-.phase-correct .oak-drop,.phase-transition .oak-drop,.phase-completed .oak-drop{opacity:0;transition:opacity .14s ease}
+
 .phase-wrong .oak-drop{animation:oak-reject .42s ease-out}
 
 .treasure-chests{

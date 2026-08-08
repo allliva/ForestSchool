@@ -5,6 +5,7 @@ import {
   shuffleSquirrelTasks,
   squirrelTaskForTurn,
   squirrelFallDuration,
+  squirrelFallSpeedMultiplier,
   squirrelTasks,
   syllableLabel,
 } from './tasks'
@@ -32,11 +33,24 @@ describe('банк и прогресс белочки', () => {
     expect(squirrelTaskForTurn(shuffled, 59)).toBe(shuffled[29])
   })
 
-  it('ускоряет падение с уровнем, но сохраняет безопасный минимум', () => {
-    expect(squirrelFallDuration(0)).toBe(14)
-    expect(squirrelFallDuration(10)).toBe(10)
-    expect(squirrelFallDuration(100)).toBe(7)
-    expect(squirrelFallDuration(-4)).toBe(14)
+  it('ускоряет падение с прогрессом как в игре лягушки и замедляет при откате', () => {
+    expect(squirrelFallSpeedMultiplier(0)).toBe(1)
+    expect(squirrelFallSpeedMultiplier(5)).toBe(2)
+    expect(squirrelFallSpeedMultiplier(10)).toBe(3)
+    expect(squirrelFallSpeedMultiplier(100)).toBe(3)
+    expect(squirrelFallDuration(0, 0)).toBe(14)
+    expect(squirrelFallDuration(0, 5)).toBe(7)
+    expect(squirrelFallDuration(0, 10)).toBeCloseTo(14 / 3)
+    expect(squirrelFallDuration(0, 3)).toBeGreaterThan(squirrelFallDuration(0, 4))
+  })
+
+  it('заметно ускоряет падение с уровнем сложности и сохраняет безопасный минимум', () => {
+    expect(squirrelFallDuration(0, 0)).toBe(14)
+    expect(squirrelFallDuration(5, 0)).toBe(10)
+    expect(squirrelFallDuration(10, 0)).toBe(6)
+    expect(squirrelFallDuration(100, 0)).toBe(6)
+    expect(squirrelFallDuration(100, 10)).toBe(3)
+    expect(squirrelFallDuration(-4, -4)).toBe(14)
   })
 
   it('держит запас в границах от нуля до десяти', () => {

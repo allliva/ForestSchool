@@ -24,10 +24,10 @@ import chest3Closed from '../assets/chest-3-closed-v2.webp'
 import chest3Open from '../assets/chest-3-open-v2.webp'
 import oakParachute from '../assets/oak-leaf-parachute-v3.webp'
 import acorn from '../assets/acorn-v4.webp'
-import progressEmpty from '../assets/progress-acorn-empty-v2.webp'
-import progressFilled from '../assets/progress-acorn-filled-v2.webp'
-import progressPantry from '../assets/progress-pantry-v2.webp'
-import progressBadge from '../assets/progress-badge-v2.webp'
+import progressEmpty from '../assets/progress-acorn-empty-v3.webp'
+import progressFilled from '../assets/progress-acorn-filled-v3.webp'
+import progressPantry from '../assets/progress-pantry-v3.webp'
+import progressBadge from '../assets/progress-badge-v3.webp'
 import squirrelIdle from '../assets/squirrel-idle-v2.webp'
 import squirrelRun1 from '../assets/squirrel-run-1-v2.webp'
 import squirrelRun2 from '../assets/squirrel-run-2-v2.webp'
@@ -78,7 +78,7 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   const tasks = useMemo(() => shuffleSquirrelTasks(), [])
   const session = useSession(null, onFinish)
   const task = squirrelTaskForTurn(tasks, session.index)
-  const fallDuration = squirrelFallDuration(level)
+
   const stageRef = useRef<HTMLElement>(null)
   const squirrelRef = useRef<HTMLDivElement>(null)
   const hangingAcornRef = useRef<HTMLImageElement>(null)
@@ -89,6 +89,7 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   const [pose, setPose] = useState<SquirrelPose>('idle')
   const [selected, setSelected] = useState<number | null>(null)
   const [progress, setProgress] = useState(0)
+  const fallDuration = squirrelFallDuration(level, progress)
   const [message, setMessage] = useState('')
   const [flight, setFlight] = useState<AcornFlight | null>(null)
   const [flightStage, setFlightStage] = useState<AcornFlightStage>(null)
@@ -230,6 +231,7 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   const travel = selected === null ? '0cqw' : `${23 + selected * 26}cqw`
   const chestIsOpen = (index: number) => selected === index && phase !== 'idle' && phase !== 'transition' && phase !== 'completed'
   const disabled = phase !== 'idle'
+  const dropFallsAway = flightStage === 'to-squirrel' || phase === 'correct' || phase === 'transition' || phase === 'completed'
 
   return <GameShell game="squirrel" onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
     <section ref={stageRef} className={`squirrel-stage phase-${phase} flight-${flightStage ?? 'none'} feedback-${session.feedback}`} aria-label="Белочка собирает запасы">
@@ -246,9 +248,10 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
       <motion.div
         className="oak-drop"
         key={`${task.id}-${dropCycle}`}
+        data-falling-away={dropFallsAway}
         initial={{ y: 0, opacity: 1 }}
-        animate={phase === 'idle' ? { y: '35cqh', opacity: 1 } : { y: 0, opacity: 1 }}
-        transition={{ duration: phase === 'idle' ? fallDuration : .12, ease: 'linear' }}
+        animate={dropFallsAway ? { y: '70cqh', opacity: 0 } : phase === 'idle' ? { y: '35cqh', opacity: 1 } : { y: 0, opacity: 1 }}
+        transition={{ duration: dropFallsAway ? .06 : phase === 'idle' ? fallDuration : .12, ease: 'linear' }}
       >
         <img className="oak-parachute" src={oakParachute} alt="" draggable={false}/>
         <strong>{task.word}</strong>
@@ -260,10 +263,7 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
         className="flying-acorn"
         src={acorn}
         alt="Белочка переносит жёлудь"
-        style={{
-          left: flightStage === 'to-squirrel' ? flight.startX : flight.catchX,
-          top: flightStage === 'to-squirrel' ? flight.startY : flight.catchY,
-        }}
+        style={{ left: flightStage === 'to-squirrel' ? flight.startX : flight.catchX, top: flightStage === 'to-squirrel' ? flight.startY : flight.catchY }}
         initial={{ x: 0, y: 0, rotate: 0, scale: flightStage === 'to-squirrel' ? 1 : .82, opacity: 1 }}
         animate={flightStage === 'to-squirrel' ? {
           x: flight.catchX - flight.startX,
