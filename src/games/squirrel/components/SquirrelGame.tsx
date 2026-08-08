@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { motion } from 'motion/react'
 import { GameShell } from '../../../shared/GameShell'
 import { useSession } from '../../../shared/useSession'
@@ -41,6 +41,13 @@ type SquirrelGameState = 'loading' | 'idle' | 'answering' | 'correct' | 'wrong' 
 type SquirrelPose = 'idle' | 'run-1' | 'run-2' | 'catch' | 'throw' | 'wrong' | 'celebrate'
 type AcornFlightStage = 'to-squirrel' | 'to-chest' | null
 
+interface PendingTimer {
+  callback: () => void
+  remaining: number
+  startedAt: number
+  id?: number
+}
+
 interface AcornFlight {
   startX: number
   startY: number
@@ -66,7 +73,7 @@ const squirrelFrames: Record<SquirrelPose, string> = {
   celebrate: squirrelCelebrate,
 }
 
-export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level = 0 }: {
+export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level = 0, isPaused = false }: {
   modeId: string
   onFinish: (score: number, mistakes: number) => void
   onFail: (score: number, mistakes: number) => void
@@ -74,6 +81,7 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   onHelp: () => void
   onAudio: () => void
   level?: number
+  isPaused?: boolean
 }) {
   const tasks = useMemo(() => shuffleSquirrelTasks(), [])
   const session = useSession(null, onFinish)
@@ -83,7 +91,8 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   const squirrelRef = useRef<HTMLDivElement>(null)
   const hangingAcornRef = useRef<HTMLImageElement>(null)
   const chestRefs = useRef<Array<HTMLButtonElement | null>>([])
-  const timersRef = useRef<number[]>([])
+  const pendingTimersRef = useRef<Set<PendingTimer>>(new Set())
+  const isPausedRef = useRef(isPaused)
   const missRef = useRef<() => void>(() => undefined)
   const [phase, setPhase] = useState<SquirrelGameState>('idle')
   const [pose, setPose] = useState<SquirrelPose>('idle')
@@ -94,14 +103,42 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   const [flight, setFlight] = useState<AcornFlight | null>(null)
   const [flightStage, setFlightStage] = useState<AcornFlightStage>(null)
   const [dropCycle, setDropCycle] = useState(0)
+  const fallRemainingRef = useRef(fallDuration * 1000)
 
-  const schedule = (callback: () => void, delay: number) => {
-    const timer = window.setTimeout(callback, delay)
-    timersRef.current.push(timer)
+  const startPendingTimer = (pending: PendingTimer) => {
+    if (isPausedRef.current) return
+    pending.startedAt = Date.now()
+    pending.id = window.setTimeout(() => {
+      pending.id = undefined
+      pendingTimersRef.current.delete(pending)
+      pending.callback()
+    }, pending.remaining)
   }
 
+  const schedule = (callback: () => void, delay: number) => {
+    const pending: PendingTimer = { callback, remaining: delay, startedAt: Date.now() }
+    pendingTimersRef.current.add(pending)
+    startPendingTimer(pending)
+  }
+
+  useEffect(() => {
+    isPausedRef.current = isPaused
+    pendingTimersRef.current.forEach(pending => {
+      if (isPaused && pending.id !== undefined) {
+        window.clearTimeout(pending.id)
+        pending.id = undefined
+        pending.remaining = Math.max(0, pending.remaining - (Date.now() - pending.startedAt))
+      } else if (!isPaused && pending.id === undefined) {
+        startPendingTimer(pending)
+      }
+    })
+  }, [isPaused])
+
   useEffect(() => () => {
-    timersRef.current.forEach(timer => window.clearTimeout(timer))
+    pendingTimersRef.current.forEach(pending => {
+      if (pending.id !== undefined) window.clearTimeout(pending.id)
+    })
+    pendingTimersRef.current.clear()
   }, [])
 
   useEffect(() => {
@@ -154,10 +191,25 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
   }
 
   useEffect(() => {
-    if (phase !== 'idle') return
-    const timer = window.setTimeout(() => missRef.current(), fallDuration * 1000)
-    return () => window.clearTimeout(timer)
-  }, [dropCycle, fallDuration, phase, task.id])
+    fallRemainingRef.current = fallDuration * 1000
+  }, [dropCycle, fallDuration, task.id])
+
+  useEffect(() => {
+    if (phase !== 'idle' || isPaused) return
+    const startedAt = Date.now()
+    let fired = false
+    const timer = window.setTimeout(() => {
+      fired = true
+      fallRemainingRef.current = 0
+      missRef.current()
+    }, fallRemainingRef.current)
+    return () => {
+      window.clearTimeout(timer)
+      if (!fired) {
+        fallRemainingRef.current = Math.max(0, fallRemainingRef.current - (Date.now() - startedAt))
+      }
+    }
+  }, [dropCycle, fallDuration, isPaused, phase, task.id])
 
   const choose = (category: SyllableCount, index: number) => {
     if (phase !== 'idle') return
@@ -230,11 +282,11 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
 
   const travel = selected === null ? '0cqw' : `${23 + selected * 26}cqw`
   const chestIsOpen = (index: number) => selected === index && phase !== 'idle' && phase !== 'transition' && phase !== 'completed'
-  const disabled = phase !== 'idle'
+  const disabled = phase !== 'idle' || isPaused
   const dropFallsAway = flightStage === 'to-squirrel' || phase === 'correct' || phase === 'transition' || phase === 'completed'
 
   return <GameShell game="squirrel" onExit={onExit} onHelp={onHelp} onAudio={onAudio}>
-    <section ref={stageRef} className={`squirrel-stage phase-${phase} flight-${flightStage ?? 'none'} feedback-${session.feedback}`} aria-label="Белочка собирает запасы">
+    <section ref={stageRef} className={`squirrel-stage phase-${phase} flight-${flightStage ?? 'none'} feedback-${session.feedback} ${isPaused ? 'is-paused' : ''}`} aria-label="Белочка собирает запасы" data-paused={isPaused}>
       <div className="squirrel-progress" aria-label={`В кладовой ${progress} из ${SQUIRREL_GOAL} желудей`}>
         <img className="progress-pantry" src={progressPantry} alt="Кладовая" draggable={false}/>
         <ol>
@@ -245,18 +297,18 @@ export function SquirrelGame({ onFinish, onFail, onExit, onHelp, onAudio, level 
         <img className="progress-badge" src={progressBadge} alt="Награда за полную кладовую" draggable={false}/>
       </div>
 
-      <motion.div
-        className="oak-drop"
+      <div
+        className="oak-drop-fall"
         key={`${task.id}-${dropCycle}`}
-        data-falling-away={dropFallsAway}
-        initial={{ y: 0, opacity: 1 }}
-        animate={dropFallsAway ? { y: '70cqh', opacity: 0 } : phase === 'idle' ? { y: '35cqh', opacity: 1 } : { y: 0, opacity: 1 }}
-        transition={{ duration: dropFallsAway ? .06 : phase === 'idle' ? fallDuration : .12, ease: 'linear' }}
+        data-falling-away={dropFallsAway ? 'true' : 'false'}
+        style={{ '--fall-duration': `${fallDuration}s` } as CSSProperties}
       >
-        <img className="oak-parachute" src={oakParachute} alt="" draggable={false}/>
-        <strong>{task.word}</strong>
-        <img ref={hangingAcornRef} className="hanging-acorn" src={acorn} alt="Жёлудь" draggable={false}/>
-      </motion.div>
+        <div className="oak-drop">
+          <img className="oak-parachute" src={oakParachute} alt="" draggable={false}/>
+          <strong>{task.word}</strong>
+          <img ref={hangingAcornRef} className="hanging-acorn" src={acorn} alt="Жёлудь" draggable={false}/>
+        </div>
+      </div>
 
       {flight && flightStage && <motion.img
         key={flightStage}

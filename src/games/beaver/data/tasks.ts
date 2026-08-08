@@ -29,7 +29,7 @@ export const beaverTasks: BeaverTask[] = [
   { id: 'sentence-6-02', difficulty: 6, words: ['девочка', 'после', 'школы', 'читает', 'интересную', 'книгу'], displaySentence: 'Девочка после школы читает интересную книгу.' },
   { id: 'sentence-6-03', difficulty: 6, words: ['рыжая', 'лиса', 'тихо', 'крадётся', 'к', 'норе'], displaySentence: 'Рыжая лиса тихо крадётся к норе.' },
   { id: 'sentence-6-04', difficulty: 6, words: ['летний', 'дождь', 'весело', 'стучит', 'по', 'крыше'], displaySentence: 'Летний дождь весело стучит по крыше.' },
-  { id: 'sentence-6-05', difficulty: 6, words: ['старый', 'рыбак', 'утром', 'чинит', 'крепкую', 'лодку'], displaySentence: 'Старый рыбак утром чинит крепкую лодку.' },
+  { id: 'sentence-6-05', difficulty: 6, words: ['старый', 'рыбак', 'утром', 'чинит', 'дырявую', 'лодку'], displaySentence: 'Старый рыбак утром чинит дырявую лодку.' },
 ]
 
 export function shuffleItems<T>(items: readonly T[], random: () => number = Math.random) {

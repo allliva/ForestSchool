@@ -59,6 +59,7 @@ export function BeaverGame({ onFinish, onFail, onExit, onHelp, onAudio }: {
 }) {
   const tasks = useMemo(() => createBeaverSession(), [])
   const [roundIndex, setRoundIndex] = useState(0)
+  const [beaverCycle, setBeaverCycle] = useState(0)
   const task = tasks[roundIndex]
   const [available, setAvailable] = useState<BeaverWordToken[]>(() => createShuffledTokens(tasks[0]))
   const [placed, setPlaced] = useState<BeaverWordToken[]>([])
@@ -84,6 +85,7 @@ export function BeaverGame({ onFinish, onFail, onExit, onHelp, onAudio }: {
   useEffect(() => () => timers.current.forEach(timer => window.clearTimeout(timer)), [])
 
   const prepareRound = (index: number, keepMistake = false) => {
+    setBeaverCycle(current => current + 1)
     setRoundIndex(index)
     setAvailable(createShuffledTokens(tasks[index]))
     setPlaced([])
@@ -265,7 +267,7 @@ export function BeaverGame({ onFinish, onFail, onExit, onHelp, onAudio }: {
         </button>)}
       </div>
 
-      <motion.div className="beaver-character" animate={beaverAnimation} transition={{ duration: beaverMovementDuration, ease: "easeInOut" }}>
+      <motion.div key={beaverCycle} className="beaver-character" initial={false} animate={beaverAnimation} transition={{ duration: beaverMovementDuration, ease: "easeInOut" }}>
         {phase === 'building' && placed.length === task.words.length && <button type="button" className="beaver-go-action" disabled={Boolean(flyingTokenId)} onClick={checkBridge} aria-label="Пойти по мосту"><motion.span className="beaver-go-arrow" initial={{ opacity: 0, y: 8 }} animate={{ opacity: [1, .72, 1], y: [0, -5, 0], scale: [1, 1.14, 1] }} transition={{ repeat: Infinity, duration: .8 }} aria-hidden="true"><svg viewBox="0 0 120 80" focusable="false"><path className="go-arrow-outline" d="M 12 40 H 88 M 66 15 L 94 40 L 66 65"/><path className="go-arrow-fill" d="M 12 40 H 88 M 66 15 L 94 40 L 66 65"/></svg></motion.span></button>}
         {pose === 'walk' ? <span className="beaver-walk-cycle" aria-label="Бобр идёт по мосту">{walkFrames.map((frame, index) => <img key={frame} className={`walk-cycle-frame frame-${index + 1}`} src={frame} alt="" draggable={false}/>)}</span> : <img src={poseImages[pose]} alt={pose === 'facepalm' ? 'Мокрый бобр вытирается' : pose === 'fall' ? 'Бобр падает в воду' : 'Добрый бобр'} draggable={false}/>}
       </motion.div>

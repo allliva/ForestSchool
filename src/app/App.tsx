@@ -20,7 +20,7 @@ import { musicUrl as beaverMusicUrl } from '../games/beaver/audio/theme'
 import { preloadVisualAssets } from '../shared/preloadAssets'
 
 type Screen = 'home' | 'profile' | 'modes' | 'game' | 'results'
-type ResultState = { correct: number; total: number; failed: boolean; mistakes: number; level: number; levelChange: number; rewardName?: string; rewardIcon?: string; rewardLost?: boolean; outcomeTitle?: string; outcomeText?: string; remainingHammers?: number; firstTryRounds?: number }
+type ResultState = { correct: number; total: number; failed: boolean; mistakes: number; level: number; levelChange: number; rewardName?: string; rewardIcon?: string; rewardLost?: boolean; collectionComplete?: boolean; outcomeTitle?: string; outcomeText?: string; remainingHammers?: number; firstTryRounds?: number }
 
 export function App() {
   const [profile, setProfile] = useState<StudentProfile | null>(() => loadProfile())
@@ -47,9 +47,10 @@ export function App() {
     const levelChange = nextProfile.level - profile.level
     const unlockedReward = nextProfile.appearanceTier > profile.appearanceTier ? explorerRewards[nextProfile.appearanceTier - 1] : undefined
     const lostReward = nextProfile.appearanceTier < profile.appearanceTier ? explorerRewards[profile.appearanceTier - 1] : undefined
+    const collectionComplete = Boolean(unlockedReward) && nextProfile.appearanceTier === explorerRewards.length
     setProfile(nextProfile)
-    setResult({ correct, total, failed, mistakes, level: nextProfile.level, levelChange, rewardName: unlockedReward?.item ?? lostReward?.item, rewardIcon: unlockedReward?.icon, rewardLost: Boolean(lostReward), outcomeTitle: gameId === 'beaver' ? failed ? 'У бобра закончились молоточки!' : 'Бобр добрался домой!' : undefined, outcomeText: gameId === 'beaver' ? failed ? 'Попробуем пройти путь ещё раз?' : 'Все 10 мостов построены!' : undefined, remainingHammers: gameId === 'beaver' ? Math.max(0, 5 - mistakes) : undefined, firstTryRounds: gameId === 'beaver' ? correct : undefined })
-    setScreen('results'); audio.play('finish')
+    setResult({ correct, total, failed, mistakes, level: nextProfile.level, levelChange, rewardName: unlockedReward?.item ?? lostReward?.item, rewardIcon: unlockedReward?.icon, rewardLost: Boolean(lostReward), collectionComplete, outcomeTitle: gameId === 'beaver' ? failed ? 'У бобра закончились молоточки!' : 'Бобр добрался домой!' : undefined, outcomeText: gameId === 'beaver' ? failed ? 'Попробуем пройти путь ещё раз?' : 'Все 10 мостов построены!' : undefined, remainingHammers: gameId === 'beaver' ? Math.max(0, 5 - mistakes) : undefined, firstTryRounds: gameId === 'beaver' ? correct : undefined })
+    setScreen('results'); audio.play(collectionComplete ? 'reward' : 'finish')
   }, [game.title, gameId, mode.title, modeId, profile])
   const showHelp = (id?: GameId) => { if (id) setGameId(id); setModal('help') }
   if (!visualsReady) return <main className="asset-loader" aria-live="polite"><div className="loader-leaf">◆</div><b>Лесная школа</b><span>Готовим лесную поляну…</span></main>
@@ -59,7 +60,7 @@ export function App() {
     {screen === 'home' && <Home profile={profile} onProfile={() => setScreen('profile')} onPlay={chooseGame} onHelp={showHelp} onAudio={() => setModal('audio')}/>}
     {screen === 'profile' && <Profile profile={profile} onBack={() => setScreen('home')} onRename={() => setModal('rename')} onReset={() => { if (confirm('Удалить имя, историю, уровни и предметы?')) { clearProfile(); setProfile(null); setScreen('home') } }}/>}
     {screen === 'modes' && <ModeSelect game={game} onBack={() => setScreen('home')} onSelect={id => { setModeId(id); setScreen('game'); audio.play('tap') }}/>}
-    {screen === 'game' && (gameId === 'frog' ? <FrogGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : gameId === 'squirrel' ? <SquirrelGame {...gameProps} level={profile.level} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : <BeaverGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/>)}
+    {screen === 'game' && (gameId === 'frog' ? <FrogGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : gameId === 'squirrel' ? <SquirrelGame {...gameProps} level={profile.level} isPaused={modal === 'help'} onFail={(score, mistakes) => finish(score, mistakes, true)}/> : <BeaverGame {...gameProps} onFail={(score, mistakes) => finish(score, mistakes, true)}/>)}
     {screen === 'results' && <Results {...result} showModes={game.modes.length > 1} onAgain={() => setScreen('game')} onModes={() => setScreen(game.modes.length === 1 ? 'game' : 'modes')} onHome={() => setScreen('home')}/>}
     {modal === 'help' && <Modal title={`Как играть: ${game.title}`} onClose={() => setModal(null)}><ol className="instruction-list">{game.instruction.map(step => <li key={step}>{step}</li>)}</ol><button className="primary-button wide" onClick={() => setModal(null)}>Всё понятно!</button></Modal>}
     {modal === 'audio' && <Modal title="Звук" onClose={() => setModal(null)}><AudioSettings value={profile.audio} onChange={value => { setProfile({ ...profile, audio: value }); audio.configure(value); audio.play('tap') }}/></Modal>}

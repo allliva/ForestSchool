@@ -59,7 +59,7 @@
 .progress-pantry{position:relative;z-index:2;width:9.5cqw;height:10.5cqh;object-fit:contain}
 .progress-badge{position:relative;z-index:2;width:8.7cqw;height:10.5cqh;object-fit:contain}
 
-.oak-drop{
+.oak-drop-fall{
   position:absolute;
   z-index:12;
   top:14cqh;
@@ -68,8 +68,11 @@
   width:30cqw;
   height:30cqh;
   transform-origin:50% 10%;
-  animation:oak-sway 4.4s ease-in-out infinite alternate;
 }
+.phase-idle .oak-drop-fall{animation:oak-fall var(--fall-duration) linear forwards}
+.oak-drop-fall[data-falling-away="true"]{animation:oak-fall-away .06s linear forwards}
+.oak-drop{position:relative;width:100%;height:100%;transform-origin:50% 10%;animation:oak-sway 4.4s ease-in-out infinite alternate}
+.is-paused .oak-drop-fall,.is-paused .oak-drop{animation-play-state:paused!important}
 
 .oak-parachute{position:absolute;inset:0 0 auto;width:100%;height:16.5cqh;object-fit:contain;filter:drop-shadow(0 1.4cqh 1.1cqh #49250755)}
 .oak-drop strong{
@@ -97,7 +100,7 @@
 }
 .hanging-acorn{position:absolute;z-index:1;top:13.8cqh;left:50%;translate:-50% 0;width:5.2cqw;height:8.3cqh;object-fit:contain;filter:drop-shadow(0 .55cqh .45cqh #43220a55)}
 
-.phase-wrong .oak-drop{animation:oak-reject .42s ease-out}
+.phase-wrong .oak-drop-fall{animation:oak-reject .42s ease-out}
 
 .treasure-chests{
   position:absolute;
@@ -217,6 +220,8 @@
 }
 .squirrel-feedback:empty{display:none}
 
+@keyframes oak-fall{from{transform:translateY(0)}to{transform:translateY(35cqh)}}
+@keyframes oak-fall-away{from{opacity:1}to{transform:translateY(70cqh);opacity:0}}
 @keyframes oak-sway{from{rotate:-2deg}to{rotate:2deg}}
 @keyframes oak-reject{0%,100%{translate:-50% 0}35%{translate:calc(-50% - 1.2cqw) -1cqh}70%{translate:calc(-50% + 1.2cqw) 0}}
 @keyframes squirrel-hop{from{translate:0 0}to{translate:0 -1.1cqh}}
@@ -235,7 +240,7 @@
   .squirrel-progress ol{width:51cqw;padding-inline:1cqw}
   .squirrel-progress li img{width:4.4cqw}
   .progress-pantry,.progress-badge{width:8cqw}
-  .oak-drop{top:14cqh;width:29cqw}
+  .oak-drop-fall{top:14cqh;width:29cqw}
   .treasure-chests{right:8cqw;bottom:1cqh;left:18cqw;gap:4cqw}
   .treasure-chest{width:20cqw;height:24cqh}
   .treasure-chest span{bottom:1.8cqh}
@@ -243,6 +248,6 @@
 }
 
 @media(prefers-reduced-motion:reduce){
-  .oak-drop,.squirrel-character img,.answer-mark{animation:none!important}
+  .oak-drop-fall,.oak-drop,.squirrel-character img,.answer-mark{animation:none!important}
   .treasure-chest,.oak-drop{transition-duration:.01ms!important}
 }

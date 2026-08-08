@@ -30,7 +30,7 @@ describe('игра белочки', () => {
     fireEvent.click(answerButton(true))
     expect(screen.getAllByRole('button', { name: /Положить жёлудь в сундук/ }).every(button => button.hasAttribute('disabled'))).toBe(true)
     expect(document.querySelector('.squirrel-stage')).toHaveClass('flight-to-squirrel')
-    expect(document.querySelector('.oak-drop')).toHaveAttribute('data-falling-away', 'true')
+    expect(document.querySelector('.oak-drop-fall')).toHaveAttribute('data-falling-away', 'true')
     act(() => vi.advanceTimersByTime(300))
     expect(document.querySelector('.squirrel-character img')).toHaveAttribute('src', expect.stringContaining('squirrel-catch-v2'))
     expect(document.querySelector('.flying-acorn')).not.toBeInTheDocument()
@@ -51,6 +51,24 @@ describe('игра белочки', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Жёлудь упал')
     expect(document.querySelector('.answer-mark.wrong')).toHaveTextContent('×')
     act(() => vi.advanceTimersByTime(750))
+    expect(onFail).toHaveBeenCalledWith(0, 1)
+  })
+
+  it('останавливает падение и ввод, пока открыта справка', () => {
+    const onFail = vi.fn()
+    const props = { modeId: 'syllables', level: 100, onFinish: vi.fn(), onFail, onExit: vi.fn(), onHelp: vi.fn(), onAudio: vi.fn() }
+    const { rerender } = render(<SquirrelGame {...props}/>)
+    act(() => vi.advanceTimersByTime(2000))
+    rerender(<SquirrelGame {...props} isPaused/>)
+    expect(document.querySelector('.squirrel-stage')).toHaveAttribute('data-paused', 'true')
+    expect(screen.getAllByRole('button', { name: /Положить жёлудь в сундук/ }).every(button => button.hasAttribute('disabled'))).toBe(true)
+    act(() => vi.advanceTimersByTime(10000))
+    expect(onFail).not.toHaveBeenCalled()
+    expect(document.querySelector('.squirrel-character img')).toHaveAttribute('src', expect.stringContaining('squirrel-idle-v2'))
+    rerender(<SquirrelGame {...props} isPaused={false}/>)
+    act(() => vi.advanceTimersByTime(3900))
+    expect(onFail).not.toHaveBeenCalled()
+    act(() => vi.advanceTimersByTime(900))
     expect(onFail).toHaveBeenCalledWith(0, 1)
   })
 

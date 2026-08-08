@@ -5,7 +5,7 @@ export const explorerRewards = [
   { unlockLevel: 4, icon: '📓', item: 'Полевой блокнот', title: 'Следопыт-стажёр' },
   { unlockLevel: 6, icon: '🧭', item: 'Компас', title: 'Искатель маршрутов' },
   { unlockLevel: 8, icon: '🦋', item: 'Сачок', title: 'Ловец лесных тайн' },
-  { unlockLevel: 10, icon: '🔭', item: 'Бинокль', title: 'Дозорный лесных крон' },
+  { unlockLevel: 10, icon: '🔭', item: 'Подзорная труба', title: 'Дозорный лесных крон' },
   { unlockLevel: 12, icon: '🔦', item: 'Фонарик', title: 'Разведчик сумерек' },
   { unlockLevel: 14, icon: '🧪', item: 'Пробирка', title: 'Лесной лаборант' },
   { unlockLevel: 16, icon: '🔬', item: 'Микроскоп', title: 'Исследователь микромира' },
